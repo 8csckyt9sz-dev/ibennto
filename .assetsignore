@@ -1,0 +1,13 @@
+# Cloudflare Workers Static Assets に公開しない管理用ファイル
+wrangler.toml
+.assetsignore
+.gitignore
+.git
+.git/**
+.github
+.github/**
+.wrangler
+.wrangler/**
+node_modules
+node_modules/**
+*.md

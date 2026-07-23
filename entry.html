@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#211a14">
-  <title>展示エントリー</title>
+  <meta name="description" content="Bacc On Street Dreams 展示エントリーフォーム">
+  <title>展示エントリー | Bacc On Street Dreams</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="entry-page">
 <header class="entry-header">
   <a href="index.html">← イベントページへ戻る</a>
-  <p class="eyebrow">EXHIBITION ENTRY</p>
+  <p class="eyebrow">Bacc On Street Dreams · EXHIBITION ENTRY</p>
   <h1>展示エントリー</h1>
   <p>必要事項を入力して送信してください。</p>
 </header>
@@ -33,10 +34,10 @@
     <fieldset>
       <legend>02 / 申込者情報</legend>
       <div class="form-grid">
-        <label><span>お名前 <em>必須</em></span><input name="name" required></label>
+        <label><span>お名前 <em>必須</em></span><input name="name" autocomplete="name" required></label>
         <label><span>フリガナ <em>必須</em></span><input name="kana" required></label>
-        <label><span>電話番号 <em>必須</em></span><input type="tel" name="phone" required></label>
-        <label><span>メールアドレス <em>必須</em></span><input type="email" name="email" required></label>
+        <label><span>電話番号 <em>必須</em></span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" required></label>
+        <label><span>メールアドレス <em>必須</em></span><input type="email" name="email" autocomplete="email" inputmode="email" required></label>
       </div>
     </fieldset>
 
@@ -45,7 +46,7 @@
       <div class="form-grid">
         <label><span>メーカー <em>必須</em></span><input name="maker" required></label>
         <label><span>車種名 <em>必須</em></span><input name="model" required></label>
-        <label><span>年式</span><input name="year"></label>
+        <label><span>年式</span><input name="year" inputmode="numeric"></label>
         <label><span>カラー</span><input name="color"></label>
         <label><span>ナンバー</span><input name="plate"></label>
         <label><span>同伴人数</span><input type="number" name="companions" min="0" value="0"></label>
@@ -53,7 +54,7 @@
       <label class="full"><span>カスタム内容・アピールポイント</span><textarea name="custom" rows="6"></textarea></label>
       <label class="upload">
         <span>車両写真 <em>必須</em></span>
-        <input id="vehicle-photo" type="file" accept="image/*" required>
+        <input id="vehicle-photo" type="file" name="photo" accept="image/*" required>
         <b>写真を選択・撮影</b>
         <small id="photo-name">まだ写真は選択されていません</small>
       </label>
@@ -63,11 +64,13 @@
     <fieldset>
       <legend>04 / その他</legend>
       <label class="full"><span>備考・連絡事項</span><textarea name="note" rows="5"></textarea></label>
-      <label class="agreement"><input type="checkbox" required><span>注意事項を確認し、主催者の案内に従うことに同意します。</span></label>
+      <label class="agreement"><input type="checkbox" name="agreement" value="同意" required><span>注意事項を確認し、主催者の案内に従うことに同意します。</span></label>
     </fieldset>
 
+    <div class="turnstile-slot" data-turnstile-container aria-live="polite"></div>
     <button class="submit-button" type="submit">入力内容を送信する<small>SUBMIT ENTRY</small></button>
-    <p class="note">※試作版では入力内容はこの端末内だけに保存されます。</p>
+    <p id="entry-form-status" class="form-status" role="alert" aria-live="polite"></p>
+    <p class="note">送信後、GASから受付番号と今後のご案内をお知らせします。</p>
   </form>
 
   <section id="success" class="success" hidden>

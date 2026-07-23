@@ -1,0 +1,7 @@
+# ローカル開発・Cloudflareの秘密情報や一時ファイルをGitHubへ含めない
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+.wrangler/
+node_modules/

@@ -4,17 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#211a14">
+  <meta name="description" content="2026年11月22日、ネスタリゾート神戸で開催。車・バイク・音楽・カルチャーが集う Bacc On Street Dreams。">
   <title>Bacc On Street Dreams</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header class="site-header">
-  <a class="brand" href="#top"><small>CAR & MOTORCYCLE EVENT</small><strong>BACC ON STREET DREAMS</strong></a>
-  <button class="menu-button" type="button" aria-expanded="false">☰</button>
-  <nav class="site-nav">
+  <a class="brand" href="#top"><small>CAR & MOTORCYCLE EVENT</small><strong>Bacc On Street Dreams</strong></a>
+  <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="メニューを開く">☰</button>
+  <nav id="site-nav" class="site-nav" aria-label="メインナビゲーション">
     <a href="#about">イベント概要</a>
     <a href="#contents">内容</a>
-    <a href="#entry">展示エントリー</a>
+    <a href="entry.html">展示エントリー</a>
+    <a href="sponsor.html">協賛募集</a>
     <a href="#access">アクセス</a>
   </nav>
 </header>
@@ -23,20 +25,23 @@
   <section class="hero">
     <div class="hero-copy">
       <p class="eyebrow">GOOD VIBES · GOOD CARS · GOOD PEOPLE</p>
-      <h1>RIDE.<br><span>DRIVE.</span><br>DREAM.</h1>
+      <h1><span>Bacc</span><br>On Street<br>Dreams</h1>
+      <p class="hero-tagline">RIDE. DRIVE. DREAM.</p>
       <p class="lead">クルマもバイクも、夢のステージへ。<br>自然の中で、仲間と音楽と最高の一日を。</p>
-      <div class="hero-buttons">
+      <div class="hero-buttons" aria-label="主要メニュー">
         <a class="button primary" href="entry.html">展示エントリー</a>
-        <a class="button ghost" href="#about">イベントを見る</a>
+        <a class="button ghost" href="sponsor.html">協賛募集</a>
+        <a class="button ghost" href="#about">イベント概要</a>
       </div>
     </div>
-    <div class="hero-art hero-photo" aria-label="車とバイクのイベントイメージ">
+    <div class="hero-art hero-photo">
       <img src="images/hero-vehicles.webp" alt="クラシックカーとバイクが並ぶイベントイメージ">
-      <div class="stamp">ENTRY<br><strong>OPEN</strong></div>
+      <div class="stamp" aria-hidden="true">ENTRY<br><strong>OPEN</strong></div>
     </div>
   </section>
 
-  <section class="event-strip">
+  <!-- EVENT INFO: 開催情報を変更する場合は、このブロックを更新してください -->
+  <section class="event-strip" aria-label="開催情報">
     <div><small>DATE</small><strong>2026.11.22 SUN</strong></div>
     <div><small>TIME</small><strong>10:00–16:00</strong></div>
     <div><small>PLACE</small><strong>NESTA RESORT KOBE</strong></div>
@@ -92,13 +97,13 @@
 </main>
 
 <footer>
-  <strong>BACC ON STREET DREAMS</strong>
+  <strong>Bacc On Street Dreams</strong>
   <small>CAR & MOTORCYCLE EVENT</small>
 </footer>
 
 <a class="fixed-entry" href="entry.html">
   <span><small>車・バイクの展示参加</small><b>展示エントリーはこちら</b></span>
-  <span>→</span>
+  <span aria-hidden="true">→</span>
 </a>
 <script src="script.js"></script>
 </body>
