@@ -3,6 +3,9 @@
 const GAS_WEB_APP_URL = '';
 // Cloudflare Turnstile のサイトキーを発行後に設定してください。空欄ならウィジェットは表示しません。
 const TURNSTILE_SITE_KEY = '';
+// LINE Developersコンソールで発行済みのLIFF ID（公開可能な識別子）です。
+const LIFF_ID = '2010807562-2WvrD0lv';
+let currentLiffIdToken = '';
 
 (() => {
   initializeTurnstile();
@@ -64,9 +67,15 @@ const TURNSTILE_SITE_KEY = '';
       showStatus(entryStatus, '申込内容を送信しています。', 'info');
 
       try {
+        const formData = new FormData(entryForm);
+        if (currentLiffIdToken) {
+          // GAS側でLINEの検証APIを使ってIDトークンを必ず検証してください。
+          formData.append('lineIdToken', currentLiffIdToken);
+        }
+
         const response = await fetch(GAS_WEB_APP_URL, {
           method: 'POST',
-          body: new FormData(entryForm)
+          body: formData
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -138,3 +147,37 @@ const TURNSTILE_SITE_KEY = '';
     document.head.appendChild(script);
   }
 })();
+
+async function initLiff() {
+  const params = new URLSearchParams(window.location.search);
+  const launchedViaLiff =
+    /\bLine\//i.test(navigator.userAgent) ||
+    params.has('liff.state') ||
+    document.referrer.startsWith('https://liff.line.me/');
+
+  // 通常のWeb閲覧ではLIFFを起動せず、LINEまたはLIFF URL経由のアクセスだけ初期化します。
+  if (!launchedViaLiff) return;
+
+  if (!window.liff) {
+    console.error('LIFF SDKを読み込めませんでした。');
+    return;
+  }
+
+  try {
+    await liff.init({liffId: LIFF_ID});
+
+    if (!liff.isLoggedIn()) {
+      liff.login({redirectUri: window.location.href});
+      return;
+    }
+
+    await liff.getProfile();
+    currentLiffIdToken = liff.getIDToken() || '';
+    document.documentElement.classList.add('liff-ready');
+  } catch (error) {
+    console.error('LIFF初期化エラー', error);
+    alert(`LINE連携エラー：${error.code || ''} ${error.message || ''}`.trim());
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initLiff);
