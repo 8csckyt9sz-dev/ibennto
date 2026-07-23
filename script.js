@@ -164,7 +164,9 @@ async function initLiff() {
   }
 
   try {
-    await liff.init({liffId: LIFF_ID});
+    await liff.init({
+      liffId: LIFF_ID
+    });
 
     if (!liff.isLoggedIn()) {
       liff.login({redirectUri: window.location.href});
