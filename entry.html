@@ -22,7 +22,14 @@
     <div><small>PLACE</small><strong>NESTA RESORT KOBE</strong></div>
   </div>
 
-  <form id="entry-form">
+  <section id="entry-auth-status" class="liff-gate">
+    <p class="eyebrow dark">LINE AUTHENTICATION</p>
+    <h2>LINEログイン情報を確認しています…</h2>
+    <p id="entry-auth-message">展示エントリーは公式LINEから受け付けています。</p>
+    <a class="button primary" href="https://liff.line.me/2010807562-2wvrDOlv">LINEで展示エントリーを開く</a>
+  </section>
+
+  <form id="entry-form" hidden>
     <fieldset>
       <legend>01 / 展示区分</legend>
       <div class="choice-grid">
@@ -75,9 +82,10 @@
 
   <section id="success" class="success" hidden>
     <p class="eyebrow dark">ENTRY COMPLETE</p>
-    <h2>エントリーを受け付けました。</h2>
-    <p>受付番号：<strong id="entry-number"></strong></p>
-    <p>このあと公式LINEへ振込案内をお送りします。</p>
+    <h2>展示エントリーを受け付けました</h2>
+    <p>受付番号<br><strong id="entry-number"></strong></p>
+    <p>このあと公式LINEへ受付案内をお送りします。</p>
+    <p>ご質問は公式LINEのトーク画面よりお問い合わせください。</p>
     <a class="button primary" href="index.html">イベントページへ戻る</a>
   </section>
 </main>
