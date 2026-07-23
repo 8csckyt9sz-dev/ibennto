@@ -4,7 +4,7 @@ const GAS_WEB_APP_URL = '';
 // Cloudflare Turnstile のサイトキーを発行後に設定してください。空欄ならウィジェットは表示しません。
 const TURNSTILE_SITE_KEY = '';
 // LINE Developersコンソールで発行済みのLIFF ID（公開可能な識別子）です。
-const LIFF_ID = '2010807562-2WvrD0lv';
+const LIFF_ID = '2010807562-2wvrDOlv';
 let currentLiffIdToken = '';
 
 (() => {
