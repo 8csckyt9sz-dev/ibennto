@@ -10,4 +10,7 @@ wrangler.toml
 .wrangler/**
 node_modules
 node_modules/**
+motor-event-reservation
+motor-event-reservation/**
+images/sponsors/.gitkeep
 *.md
