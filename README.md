@@ -1,4 +1,4 @@
-# Bacc On Street Dreams 試作サイト
+# BCC ON STREET DREAMS 試作サイト
 
 - `index.html`：イベント紹介ページ
 - `entry.html`：展示エントリーページ

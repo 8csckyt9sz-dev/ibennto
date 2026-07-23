@@ -1,6 +1,7 @@
-// Google Apps Script のウェブアプリURLを、デプロイ後にここへ設定してください。
+// Google Apps Script のウェブアプリURLは、この1か所だけで管理します。
 // LINEのアクセストークンやユーザーIDなどの秘密情報は、ここには記載しません。
-const GAS_WEB_APP_URL = '';
+const GAS_WEB_APP_URL =
+  'https://script.google.com/macros/s/AKfycbz46lwqLanaxh1WRW6kI7c9SiVZi258iOlodZbd-2w32xdyOboVfAsSsgHgPpvyI_9l8g/exec';
 // Cloudflare Turnstile のサイトキーを発行後に設定してください。空欄ならウィジェットは表示しません。
 const TURNSTILE_SITE_KEY = '';
 // LINE Developersコンソールで発行済みのLIFF ID（公開可能な識別子）です。
@@ -62,25 +63,53 @@ let currentLiffIdToken = '';
         return;
       }
 
+      if (!currentLiffIdToken) {
+        showStatus(entryStatus, 'LINEログイン情報を取得できませんでした。LINE内からページを開き直してください。', 'error');
+        return;
+      }
+
       const submitButton = entryForm.querySelector('button[type="submit"]');
       setSubmitting(submitButton, true, '送信中…');
       showStatus(entryStatus, '申込内容を送信しています。', 'info');
 
       try {
         const formData = new FormData(entryForm);
-        if (currentLiffIdToken) {
-          // GAS側でLINEの検証APIを使ってIDトークンを必ず検証してください。
-          formData.append('lineIdToken', currentLiffIdToken);
-        }
+        const photoFile = input?.files?.[0];
+        const payload = {
+          idToken: currentLiffIdToken,
+          name: formData.get('name'),
+          kana: formData.get('kana'),
+          phone: formData.get('phone'),
+          email: formData.get('email'),
+          vehicleType: formData.get('vehicleType'),
+          maker: formData.get('maker'),
+          model: formData.get('model'),
+          year: formData.get('year'),
+          color: formData.get('color'),
+          plate: formData.get('plate'),
+          companions: formData.get('companions'),
+          custom: formData.get('custom'),
+          note: formData.get('note'),
+          photoUrl: formData.get('photoUrl') || '',
+          photoFileName: photoFile?.name || '',
+          agreement: formData.get('agreement') || '',
+          sourceUrl: window.location.href
+        };
+
+        const requestBody = new URLSearchParams();
+        Object.entries(payload).forEach(([key, value]) => {
+          requestBody.append(key, value == null ? '' : String(value));
+        });
 
         const response = await fetch(GAS_WEB_APP_URL, {
           method: 'POST',
-          body: formData
+          body: requestBody,
+          redirect: 'follow'
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const result = await response.json();
-        if (!result.success || !result.entryNumber) {
+        if (!(result.ok ?? result.success) || !result.entryNumber) {
           throw new Error(result.message || '受付番号を取得できませんでした。');
         }
 
@@ -169,12 +198,15 @@ async function initLiff() {
     });
 
     if (!liff.isLoggedIn()) {
-      liff.login({redirectUri: window.location.href});
+      liff.login({
+        redirectUri: window.location.href
+      });
       return;
     }
 
-    await liff.getProfile();
-    currentLiffIdToken = liff.getIDToken() || '';
+    const profile = await liff.getProfile();
+    const idToken = liff.getIDToken();
+    currentLiffIdToken = idToken || '';
     document.documentElement.classList.add('liff-ready');
   } catch (error) {
     console.error('LIFF初期化エラー', error);
