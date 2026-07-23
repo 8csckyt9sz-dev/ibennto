@@ -6,7 +6,6 @@ const GAS_WEB_APP_URL =
 const TURNSTILE_SITE_KEY = '';
 // LINE Developersコンソールで発行済みのLIFF ID（公開可能な識別子）です。
 const LIFF_ID = '2010807562-2wvrDOlv';
-let currentLiffIdToken = '';
 
 (() => {
   initializeTurnstile();
@@ -63,20 +62,31 @@ let currentLiffIdToken = '';
         return;
       }
 
-      if (!currentLiffIdToken) {
-        showStatus(entryStatus, 'LINEログイン情報を取得できませんでした。LINE内からページを開き直してください。', 'error');
-        return;
-      }
-
       const submitButton = entryForm.querySelector('button[type="submit"]');
       setSubmitting(submitButton, true, '送信中…');
       showStatus(entryStatus, '申込内容を送信しています。', 'info');
 
       try {
+        if (!window.liff) {
+          throw new Error('LINE連携機能を読み込めませんでした。ページを開き直してください。');
+        }
+
+        if (!liff.isLoggedIn()) {
+          liff.login({
+            redirectUri: window.location.href
+          });
+          return;
+        }
+
+        const idToken = liff.getIDToken();
+        if (!idToken) {
+          throw new Error('LINEログイン情報を取得できませんでした。ページを開き直してください。');
+        }
+
         const formData = new FormData(entryForm);
         const photoFile = input?.files?.[0];
         const payload = {
-          idToken: currentLiffIdToken,
+          idToken,
           name: formData.get('name'),
           kana: formData.get('kana'),
           phone: formData.get('phone'),
@@ -119,7 +129,10 @@ let currentLiffIdToken = '';
         window.scrollTo({top: 0, behavior: 'smooth'});
       } catch (error) {
         console.error('Entry submission failed:', error);
-        showStatus(entryStatus, '送信できませんでした。通信環境をご確認のうえ、時間をおいて再度お試しください。', 'error');
+        const message = error instanceof Error && error.message.startsWith('LINE')
+          ? error.message
+          : '送信できませんでした。通信環境をご確認のうえ、時間をおいて再度お試しください。';
+        showStatus(entryStatus, message, 'error');
       } finally {
         setSubmitting(submitButton, false);
       }
@@ -204,9 +217,7 @@ async function initLiff() {
       return;
     }
 
-    const profile = await liff.getProfile();
-    const idToken = liff.getIDToken();
-    currentLiffIdToken = idToken || '';
+    await liff.getProfile();
     document.documentElement.classList.add('liff-ready');
   } catch (error) {
     console.error('LIFF初期化エラー', error);
