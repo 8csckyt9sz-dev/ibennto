@@ -333,7 +333,7 @@ async function initializePageLiff() {
     if (pageType === 'entry') {
       updateAuthMessage(
         'entry',
-        '展示エントリーはLINE内の専用ページからお申し込みください。'
+        'BOSD AWARDエントリーはLINE内の専用ページからお申し込みください。'
       );
     }
     return;
@@ -522,11 +522,21 @@ async function getSubmissionIdToken(
 }
 
 async function postToGas(payload) {
-  const controller = new AbortController();
+  const body = new URLSearchParams();
 
+  Object.entries(payload).forEach(
+    ([key, value]) => {
+      body.append(
+        key,
+        value == null ? '' : String(value)
+      );
+    }
+  );
+
+  const controller = new AbortController();
   const timeoutId = setTimeout(
     () => controller.abort(),
-    60000
+    30000
   );
 
   try {
@@ -534,10 +544,7 @@ async function postToGas(payload) {
       GAS_WEB_APP_URL,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
-        },
-        body: JSON.stringify(payload),
+        body,
         redirect: 'follow',
         signal: controller.signal
       }
@@ -549,23 +556,13 @@ async function postToGas(payload) {
       );
     }
 
-    const text = await response.text();
-
-    try {
-      return JSON.parse(text);
-    } catch (error) {
-      console.error('GAS response:', text);
-      throw new Error(
-        'GASから正しい応答を受け取れませんでした。'
-      );
-    }
+    return await response.json();
   } catch (error) {
     if (error?.name === 'AbortError') {
       throw new Error(
         '送信がタイムアウトしました。通信環境を確認して、もう一度お試しください。'
       );
     }
-
     throw error;
   } finally {
     clearTimeout(timeoutId);
