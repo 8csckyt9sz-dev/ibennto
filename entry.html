@@ -58,24 +58,42 @@
         <label><span>ナンバー</span><input name="plate"></label>
         <label><span>同伴人数</span><input type="number" name="companions" min="0" value="0"></label>
       </div>
-      <label class="full"><span>カスタム内容・アピールポイント</span><textarea name="custom" rows="6"></textarea></label>
+
+      <label class="full">
+        <span>カスタム内容・アピールポイント</span>
+        <textarea name="custom" rows="6"></textarea>
+      </label>
+
       <label class="upload">
         <span>車両写真 <em>必須</em></span>
         <input id="vehicle-photo" type="file" name="photo" accept="image/*" required>
         <b>写真を選択・撮影</b>
         <small id="photo-name">まだ写真は選択されていません</small>
       </label>
-      <div id="photo-preview-wrap" class="preview" hidden><img id="photo-preview" alt="車両写真プレビュー"></div>
+
+      <input type="hidden" name="photoUrl" id="vehicle-photo-data">
+      <div id="photo-preview-wrap" class="preview" hidden>
+        <img id="photo-preview" alt="車両写真プレビュー">
+      </div>
     </fieldset>
 
     <fieldset>
       <legend>04 / その他</legend>
-      <label class="full"><span>備考・連絡事項</span><textarea name="note" rows="5"></textarea></label>
-      <label class="agreement"><input type="checkbox" name="agreement" value="同意" required><span>注意事項を確認し、主催者の案内に従うことに同意します。</span></label>
+      <label class="full">
+        <span>備考・連絡事項</span>
+        <textarea name="note" rows="5"></textarea>
+      </label>
+      <label class="agreement">
+        <input type="checkbox" name="agreement" value="同意" required>
+        <span>注意事項を確認し、主催者の案内に従うことに同意します。</span>
+      </label>
     </fieldset>
 
     <div class="turnstile-slot" data-turnstile-container aria-live="polite"></div>
-    <button class="submit-button" type="submit">入力内容を送信する<small>SUBMIT ENTRY</small></button>
+    <button class="submit-button" type="submit">
+      入力内容を送信する
+      <small>SUBMIT ENTRY</small>
+    </button>
     <p id="entry-form-status" class="form-status" role="alert" aria-live="polite"></p>
     <p class="note">送信後、GASから受付番号と今後のご案内をお知らせします。</p>
   </form>
@@ -89,7 +107,9 @@
     <a class="button primary" href="index.html">イベントページへ戻る</a>
   </section>
 </main>
+
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="image-upload.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
