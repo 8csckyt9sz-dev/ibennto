@@ -522,21 +522,11 @@ async function getSubmissionIdToken(
 }
 
 async function postToGas(payload) {
-  const body = new URLSearchParams();
-
-  Object.entries(payload).forEach(
-    ([key, value]) => {
-      body.append(
-        key,
-        value == null ? '' : String(value)
-      );
-    }
-  );
-
   const controller = new AbortController();
+
   const timeoutId = setTimeout(
     () => controller.abort(),
-    30000
+    60000
   );
 
   try {
@@ -544,7 +534,10 @@ async function postToGas(payload) {
       GAS_WEB_APP_URL,
       {
         method: 'POST',
-        body,
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(payload),
         redirect: 'follow',
         signal: controller.signal
       }
@@ -556,13 +549,23 @@ async function postToGas(payload) {
       );
     }
 
-    return await response.json();
+    const text = await response.text();
+
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      console.error('GAS response:', text);
+      throw new Error(
+        'GASから正しい応答を受け取れませんでした。'
+      );
+    }
   } catch (error) {
     if (error?.name === 'AbortError') {
       throw new Error(
         '送信がタイムアウトしました。通信環境を確認して、もう一度お試しください。'
       );
     }
+
     throw error;
   } finally {
     clearTimeout(timeoutId);
