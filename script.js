@@ -8,7 +8,7 @@ const GAS_WEB_APP_URL =
   'https://script.google.com/macros/s/AKfycbz46lwqLanaxh1WRW6kI7c9SiVZi258iOlodZbd-2w32xdyOboVfAsSsgHgPpvyI_9l8g/exec';
 
 const ENTRY_LIFF_ID = '2010807562-2wvrDOlv';
-const SPONSOR_LIFF_ID = '2010807562-lnaRgdef';
+const SPONSOR_LIFF_ID = '2010807562-InaRgdef';
 const TURNSTILE_SITE_KEY = '';
 
 const liffSession = {
