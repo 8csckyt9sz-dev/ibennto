@@ -412,7 +412,6 @@ function isLikelyLiffLaunch() {
     new URLSearchParams(window.location.search);
 
   return (
-    /\bLine\//i.test(navigator.userAgent) ||
     params.has('liff.state') ||
     document.referrer.startsWith(
       'https://liff.line.me/'
