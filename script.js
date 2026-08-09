@@ -433,6 +433,13 @@ async function initializePageLiff() {
 
     showAuthenticatedForm(pageType);
   } catch (error) {
+    if (
+      error?.code ===
+      'LIFF_REAUTH_STARTED'
+    ) {
+      return;
+    }
+
     console.error(
       'LIFF initialization failed:',
       safeErrorForLog(error, liffStage)
@@ -568,10 +575,24 @@ async function ensureOfficialLineFriendship() {
       throw error;
     }
 
+    sessionStorage.removeItem(
+      'liffExpiredTokenRecovery'
+    );
     return true;
   } catch (error) {
     if (error?.code === 'NOT_A_FRIEND') {
       throw error;
+    }
+
+    if (isExpiredLiffAccessToken(error)) {
+      restartLiffLogin();
+
+      const reauthError = new Error(
+        'LINEログイン情報を更新しています。'
+      );
+      reauthError.code =
+        'LIFF_REAUTH_STARTED';
+      throw reauthError;
     }
 
     if (isFriendshipPermissionError(error)) {
@@ -587,6 +608,66 @@ async function ensureOfficialLineFriendship() {
 
     throw error;
   }
+}
+
+function isExpiredLiffAccessToken(error) {
+  const code = String(
+    error?.code || ''
+  ).toLowerCase();
+  const message = String(
+    error?.message || ''
+  ).toLowerCase();
+
+  return (
+    code === 'invalid_request' &&
+    (
+      message.includes('access token') ||
+      message.includes('expired')
+    )
+  );
+}
+
+function restartLiffLogin() {
+  const recoveryKey =
+    'liffExpiredTokenRecovery';
+
+  if (sessionStorage.getItem(recoveryKey)) {
+    sessionStorage.removeItem(recoveryKey);
+    throw new Error(
+      'LINEログイン情報を更新できませんでした。LINEアプリを閉じて、もう一度開いてください。'
+    );
+  }
+
+  sessionStorage.setItem(recoveryKey, '1');
+
+  const params =
+    new URLSearchParams(location.search);
+  const liffState = params.get('liff.state');
+
+  let redirectUri = location.href;
+
+  if (liffState) {
+    try {
+      redirectUri = new URL(
+        `.${liffState}`,
+        location.href
+      ).toString();
+    } catch (error) {
+      console.warn(
+        'LIFF redirect URI recovery failed:',
+        safeErrorForLog(
+          error,
+          'restartLiffLogin'
+        )
+      );
+    }
+  }
+
+  if (liff.isLoggedIn()) {
+    liff.logout();
+  }
+
+  liff.login({redirectUri});
 }
 
 function isFriendshipPermissionError(error) {
