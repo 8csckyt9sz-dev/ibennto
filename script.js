@@ -440,7 +440,10 @@ async function initializePageLiff() {
 
     updateAuthMessage(
       pageType,
-      getPublicErrorMessage(error),
+      getLiffDiagnosticMessage(
+        error,
+        liffStage
+      ),
       true
     );
   }
@@ -688,6 +691,31 @@ function safeErrorForLog(error, stage = '') {
         ? error.message
         : String(error)
   };
+}
+
+function getLiffDiagnosticMessage(
+  error,
+  stage
+) {
+  const code = String(
+    error?.code || 'NO_CODE'
+  );
+  const rawMessage =
+    error instanceof Error
+      ? error.message
+      : String(error || '詳細不明');
+  const safeMessage = rawMessage
+    .replace(
+      /eyJ[A-Za-z0-9._-]{20,}/g,
+      '[TOKEN]'
+    )
+    .slice(0, 180);
+
+  return (
+    `${getPublicErrorMessage(error)} ` +
+    `確認情報：${stage} / ` +
+    `${code} / ${safeMessage}`
+  );
 }
 
 function showStatus(
