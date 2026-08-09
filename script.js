@@ -5,10 +5,10 @@
 // redeploy: 2026-07-24
 
 const GAS_WEB_APP_URL =
-  'https://script.google.com/macros/s/AKfycbz46lwqLanaxh1WRW6kI7c9SiVZi258iOlodZbd-2w32xdyOboVfAsSsgHgPpvyI_9l8g/exec';
+  'https://script.google.com/macros/s/AKfycbyYlqLj4cq_bLbaEdl_8iqjTjLyThdC5sLLPqufaW-zd3BD7ay5oArSSOEZhd6hs0OL7g/exec';
 
 const ENTRY_LIFF_ID = '2010807562-2wvrDOlv';
-const SPONSOR_LIFF_ID = '2010807562-InaRgdef';
+const SPONSOR_LIFF_ID = '2010807562-lnaRgdef';
 const TURNSTILE_SITE_KEY = '';
 
 const liffSession = {
@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeSponsorAmount();
   initializeEntrySubmission();
   initializeSponsorSubmission();
+  initializeVendorSubmission();
   initializePageLiff();
 });
 
@@ -143,8 +144,13 @@ function initializeEntrySubmission() {
         phone: formData.get('phone'),
         email: formData.get('email'),
         vehicleType: formData.get('vehicleType'),
+        entryFee:
+          formData.get('vehicleType') === 'バイク'
+            ? '1500'
+            : '4000',
         maker: formData.get('maker'),
-        model: formData.get('model'),
+        genre: formData.get('genre'),
+        vehicleName: formData.get('vehicleName'),
         year: formData.get('year'),
         color: formData.get('color'),
         plate: formData.get('plate'),
@@ -216,34 +222,16 @@ function initializeSponsorSubmission() {
       return;
     }
 
-    const selectedAmount =
-      form.querySelector(
-        'input[name="sponsorAmount"]:checked'
-      )?.value || '';
-
-    const otherAmount =
-      form.querySelector('#otherSponsorAmount');
-
-    let sponsorAmount = selectedAmount;
-
-    if (selectedAmount === 'other') {
-      sponsorAmount = otherAmount?.value || '';
-
-      const numericAmount = Number(sponsorAmount);
-
-      if (
-        !Number.isInteger(numericAmount) ||
-        numericAmount < 1000 ||
-        numericAmount % 1000 !== 0
-      ) {
-        showStatus(
-          status,
-          'その他の金額は1,000円以上、1,000円単位で入力してください。',
-          'error'
-        );
-        otherAmount?.focus();
-        return;
-      }
+    const sponsorAmount = Number(
+      form.querySelector('input[name="sponsorAmount"]')?.value || 0
+    );
+    if (
+      !Number.isInteger(sponsorAmount) ||
+      sponsorAmount < 1000 ||
+      sponsorAmount % 1000 !== 0
+    ) {
+      showStatus(status, '協賛金額は1,000円以上、1,000円単位で入力してください。', 'error');
+      return;
     }
 
     const submitButton =
@@ -271,10 +259,7 @@ function initializeSponsorSubmission() {
         email: formData.get('email'),
         sponsorTypes: sponsorTypes.join('、'),
         sponsorAmount,
-        otherAmount:
-          selectedAmount === 'other'
-            ? sponsorAmount
-            : '',
+        otherAmount: '',
         inquiry: formData.get('inquiry')
       };
 
@@ -317,12 +302,65 @@ function initializeSponsorSubmission() {
   });
 }
 
+function initializeVendorSubmission() {
+  const form = document.querySelector('#vendor-form');
+  const success = document.querySelector('#vendor-success');
+  const vendorNumber = document.querySelector('#vendor-number');
+  const vendorAmount = document.querySelector('#vendor-amount');
+  const status = document.querySelector('#vendor-form-status');
+  if (!form || !success || !vendorNumber || !vendorAmount || !status) return;
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const submitButton = form.querySelector('button[type="submit"]');
+    setSubmitting(submitButton, true, '送信中...');
+    showStatus(status, '出店協賛申込を送信しています。', 'info');
+    try {
+      const idToken = await getSubmissionIdToken('vendor');
+      const formData = new FormData(form);
+      const payload = {
+        action: 'submitVendor',
+        idToken,
+        companyName: formData.get('companyName'),
+        representativeName: formData.get('representativeName'),
+        phone: formData.get('phone'),
+        boothContent: formData.get('boothContent'),
+        boothCount: formData.get('boothCount'),
+        vehicleInfo: formData.get('vehicleInfo'),
+        powerUse: 'なし',
+        waterUse: 'なし',
+        fireUse: formData.get('fireUse'),
+        generatorUse: formData.get('generatorUse'),
+        staffCount: formData.get('staffCount'),
+        previousDayLoadIn: formData.get('previousDayLoadIn'),
+        note: formData.get('note')
+      };
+      const result = await postToGas(payload);
+      if (!(result.ok ?? result.success) || !result.vendorNumber) {
+        throw new Error(result.message || '出店受付番号を取得できませんでした。');
+      }
+      vendorNumber.textContent = result.vendorNumber;
+      vendorAmount.textContent = `${Number(result.amount).toLocaleString('ja-JP')}円`;
+      form.hidden = true;
+      success.hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (error) {
+      console.error('Vendor submission failed:', safeErrorForLog(error));
+      showStatus(status, getPublicErrorMessage(error), 'error');
+    } finally {
+      setSubmitting(submitButton, false);
+    }
+  });
+}
+
 async function initializePageLiff() {
+  const requestedMode = getRequestedMode();
   const pageType =
     document.body.classList.contains('entry-page')
       ? 'entry'
       : document.body.classList.contains('sponsor-page')
-        ? 'sponsor'
+        ? (requestedMode === 'vendor' ? 'vendor' : 'sponsor')
         : '';
 
   if (!pageType) return;
@@ -341,13 +379,13 @@ async function initializePageLiff() {
 
   liffSession.pageType = pageType;
 
-  if (pageType === 'sponsor') {
+  if (pageType === 'sponsor' || pageType === 'vendor') {
     document
       .querySelector('#sponsor-intro')
       ?.setAttribute('hidden', '');
 
     document
-      .querySelector('#sponsor-liff-panel')
+      .querySelector(`#${pageType}-liff-panel`)
       ?.removeAttribute('hidden');
   }
 
@@ -356,6 +394,8 @@ async function initializePageLiff() {
       ? ENTRY_LIFF_ID
       : SPONSOR_LIFF_ID;
 
+  let liffStage = 'LIFF SDK';
+
   try {
     if (!window.liff) {
       throw new Error(
@@ -363,7 +403,11 @@ async function initializePageLiff() {
       );
     }
 
-    await liff.init({liffId});
+    liffStage = 'liff.init';
+    await liff.init({
+      liffId,
+      withLoginOnExternalBrowser: true
+    });
 
     if (!liff.isLoggedIn()) {
       liff.login({
@@ -372,6 +416,7 @@ async function initializePageLiff() {
       return;
     }
 
+    liffStage = 'liff.getIDToken';
     const idToken = liff.getIDToken();
 
     if (!idToken) {
@@ -380,14 +425,8 @@ async function initializePageLiff() {
       );
     }
 
-    const friendship =
-      await liff.getFriendship();
-
-    if (!friendship.friendFlag) {
-      throw new Error(
-        '公式LINEを友だち追加してからお申し込みください。'
-      );
-    }
+    liffStage = 'liff.getFriendship';
+    await ensureOfficialLineFriendship();
 
     liffSession.idToken = idToken;
     liffSession.ready = true;
@@ -396,7 +435,7 @@ async function initializePageLiff() {
   } catch (error) {
     console.error(
       'LIFF initialization failed:',
-      safeErrorForLog(error)
+      safeErrorForLog(error, liffStage)
     );
 
     updateAuthMessage(
@@ -406,12 +445,12 @@ async function initializePageLiff() {
     );
   }
 }
-
 function isLikelyLiffLaunch() {
   const params =
     new URLSearchParams(window.location.search);
 
   return (
+    /\bLine\//i.test(navigator.userAgent) ||
     params.has('liff.state') ||
     document.referrer.startsWith(
       'https://liff.line.me/'
@@ -508,16 +547,61 @@ async function getSubmissionIdToken(
     );
   }
 
-  const friendship =
-    await liff.getFriendship();
-
-  if (!friendship.friendFlag) {
-    throw new Error(
-      '公式LINEを友だち追加してからお申し込みください。'
-    );
-  }
+  await ensureOfficialLineFriendship();
 
   return idToken;
+}
+
+async function ensureOfficialLineFriendship() {
+  try {
+    const friendship =
+      await liff.getFriendship();
+
+    if (!friendship?.friendFlag) {
+      const error = new Error(
+        '公式LINEを友だち追加してからお申し込みください。'
+      );
+      error.code = 'NOT_A_FRIEND';
+      throw error;
+    }
+
+    return true;
+  } catch (error) {
+    if (error?.code === 'NOT_A_FRIEND') {
+      throw error;
+    }
+
+    if (isFriendshipPermissionError(error)) {
+      console.warn(
+        'LIFF friendship check unavailable:',
+        safeErrorForLog(
+          error,
+          'liff.getFriendship'
+        )
+      );
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+function isFriendshipPermissionError(error) {
+  const code = String(
+    error?.code || ''
+  ).toUpperCase();
+  const message = String(
+    error?.message || ''
+  ).toLowerCase();
+
+  return (
+    code === 'FORBIDDEN' ||
+    code === 'UNAUTHORIZED' ||
+    code === 'PERMISSION_DENIED' ||
+    message.includes('permission') ||
+    message.includes('scope') ||
+    message.includes('権限')
+  );
 }
 
 async function postToGas(payload) {
@@ -591,15 +675,19 @@ function getPublicErrorMessage(error) {
   );
 }
 
-function safeErrorForLog(error) {
-  return error instanceof Error
-    ? {
-        name: error.name,
-        message: error.message
-      }
-    : {
-        message: String(error)
-      };
+function safeErrorForLog(error, stage = '') {
+  return {
+    stage,
+    name:
+      error instanceof Error
+        ? error.name
+        : '',
+    code: String(error?.code || ''),
+    message:
+      error instanceof Error
+        ? error.message
+        : String(error)
+  };
 }
 
 function showStatus(
@@ -686,4 +774,18 @@ function initializeTurnstile() {
   };
 
   document.head.appendChild(script);
+}
+
+function getRequestedMode() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('mode') === 'vendor') return 'vendor';
+  const state = params.get('liff.state');
+  if (!state) return '';
+  try {
+    const decoded = decodeURIComponent(state);
+    const stateQuery = decoded.includes('?') ? decoded.split('?')[1] : decoded.replace(/^\?/, '');
+    return new URLSearchParams(stateQuery).get('mode') || '';
+  } catch (_) {
+    return '';
+  }
 }

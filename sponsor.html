@@ -21,7 +21,7 @@
       <h1>企業協賛の<br><span>お願い</span></h1>
       <p class="sponsor-lead">BACC ON STREET DREAMSは、車とバイク、音楽、カルチャー、そして人とのつながりを大切にしたイベントです。</p>
       <p>地域の皆さまや愛好家が集う特別な一日となるよう、趣旨にご賛同いただける企業・店舗・団体の皆さまからのご支援、ご協力を募集しています。</p>
-      <a class="button primary sponsor-entry-button" href="https://liff.line.me/2010807562-InaRgdef">協賛に応募する</a>
+      <a class="button primary sponsor-entry-button" href="https://liff.line.me/2010807562-lnaRgdef">協賛に応募する</a>
     </div>
     <div class="sponsor-poster" aria-hidden="true">
       <span>SUPPORT</span>
@@ -44,7 +44,7 @@
   <section class="sponsor-section dark-section">
     <div class="section-heading">
       <p class="num yellow">02</p>
-      <div><p class="eyebrow">HOW TO SUPPORT</p><h2>協賛方法</h2><p>協賛金、物品協賛、ブース出展、広告・PR協力など、ご希望に応じてご相談いただけます。</p></div>
+      <div><p class="eyebrow">HOW TO SUPPORT</p><h2>協賛方法</h2><p>協賛金、物品協賛、広告・PR協力など、ご希望に応じてご相談いただけます。出店は出店協賛メニューからお申し込みください。</p></div>
     </div>
     <div class="benefit-grid">
       <article><b>01</b><h3>協賛内容を選ぶ</h3><p>LINEの申込フォームから、ご希望の協賛内容を複数選択できます。</p></article>
@@ -68,11 +68,11 @@
     </div>
   </section>
 
-  <section class="sponsor-section rust-section sponsor-cta">
+  <section id="contact" class="sponsor-section rust-section sponsor-cta">
     <p class="eyebrow">BECOME A PARTNER</p>
     <h2>一緒にイベントを<br>盛り上げてください</h2>
     <p>申込・お問い合わせはBACC ON STREET DREAMS公式LINEで受け付けています。</p>
-    <a class="button primary sponsor-entry-button" href="https://liff.line.me/2010807562-InaRgdef">協賛に応募する</a>
+    <a class="button primary sponsor-entry-button" href="https://liff.line.me/2010807562-lnaRgdef">協賛に応募する</a>
     <p class="small-copy">ご不明な点は、公式LINEのトーク画面よりお問い合わせください。担当者が確認後、順次ご返信いたします。</p>
   </section>
 </main>
@@ -106,7 +106,6 @@
         <div class="checkbox-grid">
           <label><input type="checkbox" name="sponsorType" value="協賛金"><span>協賛金</span></label>
           <label><input type="checkbox" name="sponsorType" value="物品協賛"><span>物品協賛</span></label>
-          <label><input type="checkbox" name="sponsorType" value="ブース出展"><span>ブース出展</span></label>
           <label><input type="checkbox" name="sponsorType" value="広告・PR協力"><span>広告・PR協力</span></label>
           <label><input type="checkbox" name="sponsorType" value="その他"><span>その他</span></label>
         </div>
@@ -114,17 +113,10 @@
 
       <fieldset class="sponsor-amount-field">
         <legend>03 / 協賛希望金額</legend>
-        <div class="amount-grid">
-          <label><input type="radio" name="sponsorAmount" value="10000" required><span>10,000円</span></label>
-          <label><input type="radio" name="sponsorAmount" value="30000"><span>30,000円</span></label>
-          <label><input type="radio" name="sponsorAmount" value="50000"><span>50,000円</span></label>
-          <label><input type="radio" name="sponsorAmount" value="100000"><span>100,000円</span></label>
-          <label><input type="radio" name="sponsorAmount" value="other"><span>その他</span></label>
-        </div>
-        <div id="otherSponsorAmountWrap" class="other-amount" hidden>
-          <label for="otherSponsorAmount"><span>その他の金額</span></label>
-          <div><input type="number" id="otherSponsorAmount" name="otherSponsorAmount" min="1000" step="1000" inputmode="numeric" placeholder="例：20000"><span>円</span></div>
-        </div>
+        <label class="full"><span>申込者が希望する協賛金額 <em>必須</em></span>
+          <input type="number" name="sponsorAmount" min="1000" step="1000" inputmode="numeric" placeholder="例：30000" required>
+        </label>
+        <p class="note">入力された金額を、そのまま支払い案内に使用します。</p>
       </fieldset>
 
       <fieldset>
@@ -144,6 +136,69 @@
       <p>協賛受付番号<br><strong id="sponsor-number"></strong></p>
       <p>内容確認後、公式LINEよりご案内します。</p>
       <p>ご質問は公式LINEのトーク画面よりお問い合わせください。</p>
+    </section>
+  </div>
+</main>
+
+<main id="vendor-liff-panel" class="sponsor-application" hidden>
+  <header class="entry-header sponsor-entry-header">
+    <p class="eyebrow">BACC ON STREET DREAMS · VENDOR SPONSOR</p>
+    <h1>出店協賛申込</h1>
+  </header>
+
+  <div class="entry-main sponsor-entry-main">
+    <section id="vendor-auth-status" class="liff-gate">
+      <p class="eyebrow dark">LINE AUTHENTICATION</p>
+      <h2>LINEログイン情報を確認しています…</h2>
+      <p id="vendor-auth-message">確認完了後に出店協賛申込フォームを表示します。</p>
+    </section>
+
+    <form id="vendor-form" class="sponsor-form" hidden>
+      <fieldset>
+        <legend>01 / 出店者情報</legend>
+        <p class="note">公式LINE内の専用フォームです。電話番号とLINE認証の両方を必須として受け付けます。</p>
+        <div class="form-grid">
+          <label><span>店舗・会社名 <em>必須</em></span><input name="companyName" autocomplete="organization" required></label>
+          <label><span>代表者名 <em>必須</em></span><input name="representativeName" autocomplete="name" required></label>
+          <label><span>電話番号 <em>必須</em></span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" required></label>
+          <label><span>ブース数 <em>必須</em></span><input type="number" name="boothCount" min="1" step="1" value="1" inputmode="numeric" required></label>
+          <label><span>スタッフ人数 <em>必須</em></span><input type="number" name="staffCount" min="1" step="1" value="1" inputmode="numeric" required></label>
+        </div>
+        <p class="note">出店協賛金は1ブース7,000円です。ブース数から自動計算します。</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>02 / 出店内容</legend>
+        <label class="full"><span>出店内容 <em>必須</em></span><textarea name="boothContent" rows="5" required></textarea></label>
+        <label class="full"><span>車両情報</span><textarea name="vehicleInfo" rows="3" placeholder="搬入車両・展示車両など"></textarea></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>03 / 設備・搬入</legend>
+        <p class="note">電源・水道の用意はありません。必要な場合は、備考欄に内容を書いてご相談ください。</p>
+        <div class="form-grid">
+          <label><span>火気使用 <em>必須</em></span><select name="fireUse" required><option value="">選択してください</option><option>なし</option><option>あり</option></select></label>
+          <label><span>発電機使用 <em>必須</em></span><select name="generatorUse" required><option value="">選択してください</option><option>なし</option><option>あり</option></select></label>
+          <label><span>前日搬入 <em>必須</em></span><select name="previousDayLoadIn" required><option value="">選択してください</option><option>なし</option><option>あり</option></select></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>04 / 備考</legend>
+        <label class="full"><span>備考</span><textarea name="note" rows="5" placeholder="電源・水道が必要な場合は、必要な設備や使用内容をこちらに書いてご相談ください。"></textarea></label>
+        <label class="agreement sponsor-agreement"><input type="checkbox" name="agreement" value="同意" required><span>出店条件と個人情報の取扱いに同意します。</span></label>
+      </fieldset>
+
+      <button class="submit-button" type="submit">出店協賛申込を送信する<small>SUBMIT VENDOR ENTRY</small></button>
+      <p id="vendor-form-status" class="form-status" role="alert" aria-live="polite"></p>
+    </form>
+
+    <section id="vendor-success" class="success" hidden>
+      <p class="eyebrow dark">VENDOR ENTRY COMPLETE</p>
+      <h2>出店協賛申込を受け付けました</h2>
+      <p>出店受付番号<br><strong id="vendor-number"></strong></p>
+      <p>出店協賛金額<br><strong id="vendor-amount"></strong></p>
+      <p>内容確認後、公式LINEより支払い案内をお送りします。</p>
     </section>
   </div>
 </main>

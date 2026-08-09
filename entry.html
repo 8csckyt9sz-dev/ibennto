@@ -20,6 +20,7 @@
   <div class="mini-info">
     <div><small>DATE</small><strong>2026.11.22 SUN</strong></div>
     <div><small>PLACE</small><strong>NESTA RESORT KOBE</strong></div>
+    <div><small>ENTRY FEE</small><strong>車 4,000円 / バイク 1,500円</strong></div>
   </div>
 
   <section id="entry-auth-status" class="liff-gate">
@@ -44,20 +45,31 @@
         <label><span>お名前 <em>必須</em></span><input name="name" autocomplete="name" required></label>
         <label><span>フリガナ <em>必須</em></span><input name="kana" required></label>
         <label><span>電話番号 <em>必須</em></span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" required></label>
-        <label><span>メールアドレス <em>必須</em></span><input type="email" name="email" autocomplete="email" inputmode="email" required></label>
+        <label><span>メールアドレス（任意）</span><input type="email" name="email" autocomplete="email" inputmode="email"></label>
       </div>
     </fieldset>
 
     <fieldset>
       <legend>03 / 車両情報</legend>
       <div class="form-grid">
-        <label><span>メーカー <em>必須</em></span><input name="maker" required></label>
-        <label><span>車種名 <em>必須</em></span><input name="model" required></label>
+        <label><span>ジャンル <em>必須</em></span><input name="genre" placeholder="例：旧車、アメリカン、カスタム" required></label>
+        <label><span>メーカー（任意）</span><input name="maker"></label>
+        <label><span>車名（任意）</span><input name="vehicleName"></label>
         <label><span>年式</span><input name="year" inputmode="numeric"></label>
         <label><span>カラー</span><input name="color"></label>
         <label><span>ナンバー</span><input name="plate"></label>
-        <label><span>同伴人数</span><input type="number" name="companions" min="0" value="0"></label>
+        <label><span>同伴予定人数</span>
+          <select name="companions" required>
+            <option value="0">0人</option>
+            <option value="1">1人</option>
+            <option value="2">2人</option>
+            <option value="3">3人</option>
+            <option value="4人以上">4人以上</option>
+            <option value="未定">未定</option>
+          </select>
+        </label>
       </div>
+      <p class="note">参加費は車4,000円、バイク1,500円（運転者1名の入場料込み）です。同伴者は1名1,000円を当日受付でお支払いください。</p>
 
       <label class="full">
         <span>カスタム内容・アピールポイント</span>
