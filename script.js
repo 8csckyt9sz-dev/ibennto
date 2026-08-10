@@ -315,7 +315,7 @@ function initializeVendorSubmission() {
     if (!form.reportValidity()) return;
     const submitButton = form.querySelector('button[type="submit"]');
     setSubmitting(submitButton, true, '送信中...');
-    showStatus(status, '出店協賛申込を送信しています。', 'info');
+    showStatus(status, '出店申込みを送信しています。', 'info');
     try {
       const idToken = await getSubmissionIdToken('vendor');
       const formData = new FormData(form);
