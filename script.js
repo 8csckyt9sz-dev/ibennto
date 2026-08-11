@@ -151,6 +151,7 @@ function initializeEntrySubmission() {
         maker: formData.get('maker'),
         genre: formData.get('genre'),
         vehicleName: formData.get('vehicleName'),
+        model: formData.get('vehicleName'),
         year: formData.get('year'),
         color: formData.get('color'),
         plate: formData.get('plate'),
