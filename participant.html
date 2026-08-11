@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#211a14">
+  <meta name="description" content="BACC ON STREET DREAMS BOSD AWARD参加者専用ページ">
+  <title>BOSD AWARD 参加者専用ページ</title>
+  <link rel="stylesheet" href="participant.css">
+</head>
+<body>
+  <header class="participant-header">
+    <p class="kicker">BACC ON STREET DREAMS · BOSD AWARD</p>
+    <h1>YOUR RIDE.<br><span>YOUR STORY.</span></h1>
+    <p>車両写真・車両情報・アピールポイントを登録・編集できます。</p>
+  </header>
+
+  <main>
+    <section id="loading" class="panel status-panel" aria-live="polite">
+      <p class="kicker ink">PARTICIPANT ACCESS</p>
+      <h2>参加者情報を確認しています…</h2>
+    </section>
+
+    <section id="error" class="panel status-panel error-panel" hidden>
+      <p class="kicker ink">ACCESS ERROR</p>
+      <h2>参加者ページを確認できませんでした。</h2>
+      <p id="error-message">URLが途中で切れていないかご確認ください。解決しない場合は公式LINEからお問い合わせください。</p>
+    </section>
+
+    <form id="participant-form" hidden>
+      <section class="entry-summary panel">
+        <div><small>ENTRY NUMBER</small><strong id="entry-number"></strong></div>
+        <div><small>CATEGORY</small><strong id="vehicle-type"></strong></div>
+        <div><small>APPLICANT</small><strong id="applicant-name"></strong></div>
+        <div><small>MAKER</small><strong id="maker"></strong></div>
+      </section>
+
+      <fieldset>
+        <legend>01 / 公開プロフィール</legend>
+        <div class="grid">
+          <label>
+            <span>オーナー名 <em>必須</em></span>
+            <input name="ownerName" maxlength="60" required>
+          </label>
+          <label>
+            <span>車両名 <em>必須</em></span>
+            <input name="vehicleName" maxlength="80" required>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>02 / 掲載画像</legend>
+        <p class="help">メイン写真は必須です。画像は送信前に自動で縮小されます。既存画像を変更しない場合は選択不要です。</p>
+        <div class="photo-grid">
+          <label class="photo-picker">
+            <span>メイン写真 <em>必須</em></span>
+            <input id="main-photo" type="file" accept="image/*">
+            <b>選択・撮影</b>
+            <img id="main-preview" alt="メイン写真プレビュー" hidden>
+          </label>
+          <label class="photo-picker">
+            <span>追加写真 1</span>
+            <input id="sub-photo-1" type="file" accept="image/*">
+            <b>選択・撮影</b>
+            <img id="sub-preview-1" alt="追加写真1プレビュー" hidden>
+          </label>
+          <label class="photo-picker">
+            <span>追加写真 2</span>
+            <input id="sub-photo-2" type="file" accept="image/*">
+            <b>選択・撮影</b>
+            <img id="sub-preview-2" alt="追加写真2プレビュー" hidden>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>03 / 車両紹介</legend>
+        <label>
+          <span>コメント</span>
+          <textarea name="ownerComment" rows="4" maxlength="500"></textarea>
+        </label>
+        <label>
+          <span>カスタム内容</span>
+          <textarea name="customContent" rows="5" maxlength="1000"></textarea>
+        </label>
+        <label>
+          <span>アピールポイント <em>必須</em></span>
+          <textarea name="appealPoint" rows="5" maxlength="1000" required></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>04 / SNS・公開設定</legend>
+        <div class="grid">
+          <label>
+            <span>Instagram URL</span>
+            <input type="url" name="instagramUrl" inputmode="url" placeholder="https://instagram.com/...">
+          </label>
+          <label>
+            <span>その他SNS URL</span>
+            <input type="url" name="otherSnsUrl" inputmode="url" placeholder="https://...">
+          </label>
+          <label>
+            <span>公開状態 <em>必須</em></span>
+            <select name="publicStatus" required>
+              <option value="非公開">非公開</option>
+              <option value="公開">公開</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <button id="save-button" class="save-button" type="submit">
+        登録内容を保存する
+        <small>SAVE BOSD PROFILE</small>
+      </button>
+      <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+      <p class="notice">保存後も同じURLから何度でも編集できます。参加者専用URLを第三者へ共有しないでください。</p>
+    </form>
+  </main>
+  <script src="participant.js"></script>
+</body>
+</html>

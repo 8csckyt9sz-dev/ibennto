@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>BOSD 参加者受付QR</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    :root{--ink:#211a14;--paper:#f4e6c4;--red:#a93625;--gold:#e6a827}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100dvh;background:#171411;color:var(--paper);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+    header{padding:18px 20px;border-bottom:4px solid var(--red);background:#0e0d0b}
+    header small{font-weight:900;letter-spacing:.15em;color:var(--gold)}
+    header h1{margin:5px 0 0;font-size:25px}
+    main{width:min(720px,100%);margin:auto;padding:22px 16px 40px}
+    .lead{line-height:1.8}
+    #reader{overflow:hidden;margin:18px 0;border:3px solid var(--paper);background:#000}
+    #reader video{max-height:62dvh;object-fit:cover}
+    button,.photo-label,a{display:flex;align-items:center;justify-content:center;width:100%;min-height:54px;margin-top:14px;padding:11px 16px;border:2px solid var(--ink);background:var(--gold);color:var(--ink);font:inherit;font-weight:900;text-decoration:none;box-shadow:4px 4px 0 #000}
+    .photo-label{position:relative;background:var(--paper)}
+    .photo-label input{position:absolute;inset:0;width:100%;height:100%;opacity:0}
+    #message{margin-top:18px;padding:14px;border:2px solid var(--paper);line-height:1.6}
+    #message.error{border-color:#ef6b57;background:#3c1712}
+    .back{background:transparent;color:var(--paper);border-color:var(--paper)}
+  </style>
+</head>
+<body>
+  <header><small>BACC ON STREET DREAMS</small><h1>参加者受付QRスキャナー</h1></header>
+  <main>
+    <p class="lead">「カメラを起動」を押して、参加者の受付QRを枠内に映してください。</p>
+    <div id="reader"></div>
+    <button id="startButton" type="button">カメラを起動</button>
+    <label class="photo-label">QR写真を選んで読み取る<input id="photoInput" type="file" accept="image/*" capture="environment"></label>
+    <div id="message" hidden></div>
+    <a class="back" href="https://script.google.com/macros/s/AKfycbyYlqLj4cq_bLbaEdl_8iqjTjLyThdC5sLLPqufaW-zd3BD7ay5oArSSOEZhd6hs0OL7g/exec">管理画面へ戻る</a>
+  </main>
+  <script>
+    (() => {
+      const adminUrl = 'https://script.google.com/macros/s/AKfycbyYlqLj4cq_bLbaEdl_8iqjTjLyThdC5sLLPqufaW-zd3BD7ay5oArSSOEZhd6hs0OL7g/exec';
+      const startButton = document.getElementById('startButton');
+      const photoInput = document.getElementById('photoInput');
+      const message = document.getElementById('message');
+      let scanner = null;
+
+      function showMessage(text, isError) {
+        message.textContent = text;
+        message.className = isError ? 'error' : '';
+        message.hidden = false;
+      }
+
+      function acceptCode(text) {
+        const code = String(text || '').trim();
+        if (!/^BOSD-CHECKIN:[0-9a-f]{32}$/i.test(code)) {
+          showMessage('BOSDの受付QRではありません。正しいQRを読み取ってください。', true);
+          return;
+        }
+        showMessage('読み取りました。管理画面で照合します。', false);
+        location.replace(`${adminUrl}?checkinCode=${encodeURIComponent(code)}&v=29`);
+      }
+
+      async function stopScanner() {
+        if (!scanner) return;
+        try {
+          if (scanner.isScanning) await scanner.stop();
+          scanner.clear();
+        } catch (_) {}
+        scanner = null;
+      }
+
+      startButton.addEventListener('click', async () => {
+        startButton.disabled = true;
+        showMessage('カメラを起動しています…', false);
+        try {
+          await stopScanner();
+          scanner = new Html5Qrcode('reader');
+          await scanner.start(
+            { facingMode: 'environment' },
+            { fps: 12, qrbox: (w,h) => {
+              const size = Math.floor(Math.min(w,h) * .72);
+              return { width:size, height:size };
+            }},
+            async text => {
+              await stopScanner();
+              acceptCode(text);
+            },
+            () => {}
+          );
+          showMessage('受付QRを枠内に映してください。', false);
+        } catch (error) {
+          showMessage('カメラを起動できませんでした。下の「QR写真を選んで読み取る」をお試しください。', true);
+          startButton.disabled = false;
+        }
+      });
+
+      photoInput.addEventListener('change', async event => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        showMessage('QR写真を読み取っています…', false);
+        try {
+          await stopScanner();
+          scanner = new Html5Qrcode('reader');
+          const text = await scanner.scanFile(file, true);
+          scanner.clear();
+          scanner = null;
+          acceptCode(text);
+        } catch (error) {
+          showMessage('QRを読み取れませんでした。QR全体が大きく写るように撮影してください。', true);
+        } finally {
+          photoInput.value = '';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
