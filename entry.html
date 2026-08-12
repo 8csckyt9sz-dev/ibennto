@@ -97,8 +97,8 @@
         <textarea name="note" rows="5"></textarea>
       </label>
       <label class="agreement">
-        <input type="checkbox" name="agreement" value="同意" required>
-        <span>注意事項と<a href="privacy.html" target="_blank" rel="noopener">個人情報の取扱い</a>を確認し、主催者の案内に従うことに同意します。</span>
+        <input type="checkbox" name="agreement" value="同意" data-confirm-documents required disabled>
+        <span><a href="terms.html" target="_blank" rel="noopener" data-required-document="terms">注意事項</a>と<a href="privacy.html" target="_blank" rel="noopener" data-required-document="privacy">個人情報の取扱い</a>を両方開いて確認し、主催者の案内に従うことに同意します。<small class="document-confirm-status" aria-live="polite">未確認：注意事項・個人情報の取扱い</small></span>
       </label>
     </fieldset>
 
@@ -123,6 +123,6 @@
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="image-upload.js"></script>
-<script src="script.js?v=20260809-3"></script>
+<script src="script.js?v=20260812-1"></script>
 </body>
 </html>

@@ -22,11 +22,43 @@ document.addEventListener('DOMContentLoaded', () => {
   initializePhotoPreview();
   initializeTurnstile();
   initializeSponsorAmount();
+  initializeRequiredDocumentConfirmation();
   initializeEntrySubmission();
   initializeSponsorSubmission();
   initializeVendorSubmission();
   initializePageLiff();
 });
+
+function initializeRequiredDocumentConfirmation() {
+  document.querySelectorAll('[data-confirm-documents]').forEach(checkbox => {
+    const agreement = checkbox.closest('.agreement');
+    if (!agreement) return;
+    const links = [...agreement.querySelectorAll('[data-required-document]')];
+    const status = agreement.querySelector('.document-confirm-status');
+    const opened = new Set();
+
+    const update = () => {
+      links.forEach(link => link.classList.toggle('is-confirmed', opened.has(link.dataset.requiredDocument)));
+      const missing = links.filter(link => !opened.has(link.dataset.requiredDocument));
+      checkbox.disabled = missing.length > 0;
+      if (missing.length) checkbox.checked = false;
+      agreement.classList.toggle('documents-confirmed', !missing.length);
+      if (status) {
+        status.textContent = missing.length
+          ? `未確認：${missing.map(link => link.textContent.trim()).join('・')}`
+          : '両方の確認が完了しました。同意欄を選択できます。';
+      }
+    };
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        opened.add(link.dataset.requiredDocument);
+        update();
+      });
+    });
+    update();
+  });
+}
 
 function initializeMenu() {
   const menu = document.querySelector('.menu-button');

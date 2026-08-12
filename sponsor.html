@@ -122,7 +122,7 @@
       <fieldset>
         <legend>04 / 問い合わせ・連絡事項</legend>
         <label class="full"><span>問い合わせ・連絡事項</span><textarea name="inquiry" rows="7"></textarea></label>
-        <label class="agreement sponsor-agreement"><input type="checkbox" name="privacyAgreement" value="同意" required><span><a href="privacy.html" target="_blank" rel="noopener">個人情報の取扱い</a>を確認し、同意します。</span></label>
+        <label class="agreement sponsor-agreement"><input type="checkbox" name="privacyAgreement" value="同意" data-confirm-documents required disabled><span><a href="terms.html" target="_blank" rel="noopener" data-required-document="terms">注意事項</a>と<a href="privacy.html" target="_blank" rel="noopener" data-required-document="privacy">個人情報の取扱い</a>を両方開いて確認し、同意します。<small class="document-confirm-status" aria-live="polite">未確認：注意事項・個人情報の取扱い</small></span></label>
       </fieldset>
 
       <div class="turnstile-slot" data-turnstile-container aria-live="polite"></div>
@@ -187,7 +187,7 @@
       <fieldset>
         <legend>04 / 備考</legend>
         <label class="full"><span>備考</span><textarea name="note" rows="5" placeholder="電源・水道が必要な場合は、必要な設備や使用内容をこちらに書いてご相談ください。"></textarea></label>
-        <label class="agreement sponsor-agreement"><input type="checkbox" name="agreement" value="同意" required><span>出店条件と<a href="privacy.html" target="_blank" rel="noopener">個人情報の取扱い</a>を確認し、同意します。</span></label>
+        <label class="agreement sponsor-agreement"><input type="checkbox" name="agreement" value="同意" data-confirm-documents required disabled><span><a href="terms.html" target="_blank" rel="noopener" data-required-document="terms">出店条件・注意事項</a>と<a href="privacy.html" target="_blank" rel="noopener" data-required-document="privacy">個人情報の取扱い</a>を両方開いて確認し、同意します。<small class="document-confirm-status" aria-live="polite">未確認：注意事項・個人情報の取扱い</small></span></label>
       </fieldset>
 
       <button class="submit-button" type="submit">出店申込みを送信する<small>SUBMIT VENDOR ENTRY</small></button>
@@ -210,6 +210,6 @@
   <a class="footer-policy-link" href="privacy.html">個人情報の取扱いについて</a>
 </footer>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="script.js?v=20260809-3"></script>
+<script src="script.js?v=20260812-1"></script>
 </body>
 </html>

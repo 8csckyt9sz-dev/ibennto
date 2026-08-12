@@ -222,8 +222,26 @@ function setValue(name, value) {
 function setPreview(id, url) {
   const image = document.querySelector(`#${id}`);
   if (!url) return;
-  image.src = url;
+  image.src = normalizeDriveImageUrl(url);
+  image.referrerPolicy = 'no-referrer';
+  image.onerror = () => {
+    image.hidden = true;
+    showStatus('保存済み画像を表示できませんでした。画像を選び直して保存してください。', 'error');
+  };
+  image.onload = () => {
+    image.hidden = false;
+  };
   image.hidden = false;
+}
+
+function normalizeDriveImageUrl(url) {
+  const text = String(url || '').trim();
+  if (!text || text.startsWith('data:')) return text;
+  const idMatch = text.match(/[?&]id=([A-Za-z0-9_-]+)/) ||
+    text.match(/\/file\/d\/([A-Za-z0-9_-]+)/);
+  return idMatch
+    ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(idMatch[1])}&sz=w1600`
+    : text;
 }
 
 function safeError(error) {
