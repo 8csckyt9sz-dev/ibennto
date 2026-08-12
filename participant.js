@@ -126,8 +126,18 @@ async function saveParticipant(event) {
     });
     if (!result.ok) throw new Error(result.message);
     state.images = { mainPhoto: '', subPhoto1: '', subPhoto2: '' };
-    state.participant.mainPhotoUrl =
-      state.participant.mainPhotoUrl || 'saved';
+    const refreshed = await postToGas({
+      action: 'getBosdParticipant',
+      token: state.token
+    });
+    if (!refreshed.ok || !refreshed.participant) {
+      throw new Error(refreshed.message || '保存後の画像を確認できませんでした。');
+    }
+    state.participant = refreshed.participant;
+    populate(refreshed.participant);
+    form.querySelectorAll('input[type="file"]').forEach(input => {
+      input.value = '';
+    });
     showStatus('登録内容を保存しました。同じURLから後で変更できます。', 'success');
   } catch (error) {
     console.error('Participant save failed', safeError(error));
@@ -188,6 +198,11 @@ async function postToGas(payload) {
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return await response.json();
+  } catch (error) {
+    if (error?.name === 'AbortError') {
+      throw new Error('通信がタイムアウトしました。通信環境を確認して、もう一度お試しください。');
+    }
+    throw error;
   } finally {
     clearTimeout(timeout);
   }

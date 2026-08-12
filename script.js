@@ -272,6 +272,7 @@ function initializeEntrySubmission() {
       }
 
       entryNumber.textContent = result.entryNumber;
+      showLineDeliveryResult('entry-line-status', result);
       form.hidden = true;
       clearFormDraft(form);
       success.hidden = false;
@@ -380,6 +381,7 @@ function initializeSponsorSubmission() {
 
       sponsorNumber.textContent =
         result.sponsorNumber;
+      showLineDeliveryResult('sponsor-line-status', result);
 
       form.hidden = true;
       clearFormDraft(form);
@@ -446,6 +448,7 @@ function initializeVendorSubmission() {
       }
       vendorNumber.textContent = result.vendorNumber;
       vendorAmount.textContent = `${Number(result.amount).toLocaleString('ja-JP')}円`;
+      showLineDeliveryResult('vendor-line-status', result);
       form.hidden = true;
       clearFormDraft(form);
       success.hidden = false;
@@ -877,6 +880,22 @@ function safeErrorForLog(error, stage = '') {
         ? error.message
         : String(error)
   };
+}
+
+function showLineDeliveryResult(elementId, result) {
+  const element = document.querySelector(`#${elementId}`);
+  if (!element) return;
+  if (result?.duplicate) {
+    element.textContent = '同じ内容はすでに受付済みです。二重登録はしていません。先に届いた公式LINEをご確認ください。';
+    element.classList.remove('is-warning');
+    return;
+  }
+  const sent = result?.applicantMessageSent === true;
+  element.textContent = sent
+    ? '公式LINEへの受付案内送信を確認しました。'
+    : (result?.applicantMessageWarning ||
+      '受付は完了しましたが、公式LINEへの案内送信を確認できませんでした。運営へお問い合わせください。');
+  element.classList.toggle('is-warning', !sent);
 }
 
 function getLiffDiagnosticMessage(
