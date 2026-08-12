@@ -22,12 +22,81 @@ document.addEventListener('DOMContentLoaded', () => {
   initializePhotoPreview();
   initializeTurnstile();
   initializeSponsorAmount();
+  initializeFormDrafts();
   initializeRequiredDocumentConfirmation();
   initializeEntrySubmission();
   initializeSponsorSubmission();
   initializeVendorSubmission();
   initializePageLiff();
 });
+
+function initializeFormDrafts() {
+  document.querySelectorAll('#entry-form, #sponsor-form, #vendor-form').forEach(form => {
+    const draftKey = `bosd-form-draft:${form.id}`;
+
+    const saveDraft = () => {
+      const values = {};
+      form.querySelectorAll('input, select, textarea').forEach(field => {
+        if (!field.name || field.type === 'file' || field.type === 'hidden') return;
+        if (field.type === 'checkbox' || field.type === 'radio') {
+          values[field.name] = values[field.name] || [];
+          if (field.checked) values[field.name].push(field.value);
+        } else {
+          values[field.name] = field.value;
+        }
+      });
+      try {
+        sessionStorage.setItem(draftKey, JSON.stringify(values));
+      } catch (_) {
+        // 保存容量やプライベートブラウズ制限がある場合もフォーム操作は継続する。
+      }
+    };
+
+    const restoreDraft = () => {
+      let values;
+      try {
+        values = JSON.parse(sessionStorage.getItem(draftKey) || 'null');
+      } catch (_) {
+        values = null;
+      }
+      if (!values) return;
+      form.querySelectorAll('input, select, textarea').forEach(field => {
+        if (!field.name || field.type === 'file' || field.type === 'hidden') return;
+        if (field.type === 'checkbox' || field.type === 'radio') {
+          field.checked = Array.isArray(values[field.name]) && values[field.name].includes(field.value);
+        } else if (Object.prototype.hasOwnProperty.call(values, field.name)) {
+          field.value = values[field.name];
+        }
+      });
+    };
+
+    restoreDraft();
+    form.addEventListener('input', saveDraft);
+    form.addEventListener('change', saveDraft);
+    form.querySelectorAll('[data-required-document]').forEach(link => {
+      link.addEventListener('click', () => {
+        saveDraft();
+        try {
+          sessionStorage.setItem('bosd-document-return-url', window.location.href);
+        } catch (_) {
+          // 保存できない環境でもリンクは開ける。
+        }
+      });
+    });
+    form.addEventListener('reset', () => sessionStorage.removeItem(draftKey));
+    form.dataset.draftKey = draftKey;
+  });
+}
+
+function clearFormDraft(form) {
+  const key = form?.dataset?.draftKey;
+  if (!key) return;
+  try {
+    sessionStorage.removeItem(key);
+  } catch (_) {
+    // 下書き削除に失敗しても受付完了表示は継続する。
+  }
+}
 
 function initializeRequiredDocumentConfirmation() {
   document.querySelectorAll('[data-confirm-documents]').forEach(checkbox => {
@@ -204,6 +273,7 @@ function initializeEntrySubmission() {
 
       entryNumber.textContent = result.entryNumber;
       form.hidden = true;
+      clearFormDraft(form);
       success.hidden = false;
 
       window.scrollTo({
@@ -312,6 +382,7 @@ function initializeSponsorSubmission() {
         result.sponsorNumber;
 
       form.hidden = true;
+      clearFormDraft(form);
       success.hidden = false;
 
       window.scrollTo({
@@ -376,6 +447,7 @@ function initializeVendorSubmission() {
       vendorNumber.textContent = result.vendorNumber;
       vendorAmount.textContent = `${Number(result.amount).toLocaleString('ja-JP')}円`;
       form.hidden = true;
+      clearFormDraft(form);
       success.hidden = false;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
