@@ -1,0 +1,244 @@
+:root {
+  --ink: #201913;
+  --paper: #ead39b;
+  --cream: #f5e7bd;
+  --rust: #a93422;
+  --dark-red: #5d1f17;
+}
+
+* { box-sizing: border-box; }
+
+html { overflow-x: hidden; }
+
+body {
+  margin: 0;
+  min-width: 0;
+  overflow-x: hidden;
+  color: var(--ink);
+  background:
+    repeating-linear-gradient(0deg, rgba(61, 34, 15, .025) 0 1px, transparent 1px 4px),
+    var(--paper);
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+}
+
+[hidden] { display: none !important; }
+
+.vehicle-header {
+  padding: max(24px, env(safe-area-inset-top)) 22px 38px;
+  color: var(--cream);
+  background: linear-gradient(155deg, #211a14 0%, #381a13 52%, #74271b 100%);
+  border-bottom: 8px solid var(--ink);
+}
+
+.kicker {
+  margin: 0 0 14px;
+  color: #d7714c;
+  font: 800 .78rem/1.25 "Arial Narrow", sans-serif;
+  letter-spacing: .18em;
+}
+
+.kicker.ink { color: var(--rust); }
+
+.vehicle-header h1 {
+  margin: 0;
+  font: 900 clamp(2.7rem, 15vw, 5.7rem)/.84 Impact, "Arial Narrow", sans-serif;
+  letter-spacing: .015em;
+}
+
+.vehicle-header h1 span { color: #e6b769; }
+
+.vehicle-header > p:last-child {
+  margin: 22px 0 0;
+  font-weight: 800;
+}
+
+main {
+  width: min(100% - 28px, 820px);
+  margin: 24px auto 56px;
+}
+
+.paper-panel {
+  padding: 24px;
+  background: rgba(250, 236, 199, .93);
+  border: 4px solid var(--ink);
+  box-shadow: 8px 8px 0 rgba(40, 25, 14, .22);
+}
+
+.status-panel { text-align: center; }
+.status-panel h2 { margin: 0; font-size: clamp(1.35rem, 6vw, 2rem); }
+.error-panel { color: #7c2117; background: #f4cbbb; }
+
+.profile-heading {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.profile-heading small {
+  display: block;
+  color: var(--rust);
+  font: 800 .68rem/1.2 "Arial Narrow", sans-serif;
+  letter-spacing: .12em;
+}
+
+.profile-heading strong { font-size: 1.05rem; }
+
+.profile-heading .maker {
+  grid-column: 1 / -1;
+  margin: 14px 0 -8px;
+  color: var(--rust);
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.profile-heading h2 {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: clamp(2.1rem, 10vw, 4.8rem);
+  line-height: .98;
+  overflow-wrap: anywhere;
+}
+
+.owner {
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  padding-top: 16px;
+  border-top: 2px solid rgba(32, 25, 19, .3);
+}
+
+.owner span {
+  margin-right: 12px;
+  color: var(--rust);
+  font: 800 .72rem/1 "Arial Narrow", sans-serif;
+  letter-spacing: .14em;
+}
+
+.photo-section { margin: 24px 0; }
+
+.photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  padding: 0;
+  overflow: hidden;
+  color: var(--cream);
+  background: #2d2119;
+  border: 4px solid var(--ink);
+  cursor: zoom-in;
+}
+
+.photo.no-photo::after {
+  content: "NO IMAGE";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 900 1.4rem/1 Impact, sans-serif;
+  letter-spacing: .12em;
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  object-fit: cover;
+}
+
+.main-photo { aspect-ratio: 4 / 3; }
+
+.sub-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.sub-photo-grid .photo {
+  min-height: 120px;
+  aspect-ratio: 1 / 1;
+}
+
+.story-panel { margin-top: 20px; }
+
+.section-number {
+  margin: 0 0 16px;
+  color: var(--rust);
+  font: 900 .82rem/1.3 "Arial Narrow", sans-serif;
+  letter-spacing: .12em;
+}
+
+.multiline {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 1rem;
+  line-height: 1.9;
+}
+
+.social-links {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.social-links a {
+  display: grid;
+  min-height: 52px;
+  place-items: center;
+  color: var(--cream);
+  background: var(--rust);
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-decoration: none;
+}
+
+.read-only-note {
+  margin: 28px 0 0;
+  text-align: center;
+  font-size: .84rem;
+  font-weight: 700;
+}
+
+.photo-dialog {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 56px 12px 20px;
+  border: 0;
+  background: rgba(18, 13, 10, .96);
+}
+
+.photo-dialog::backdrop { background: rgba(18, 13, 10, .94); }
+
+.photo-dialog img {
+  display: block;
+  width: 100%;
+  height: calc(100dvh - 80px);
+  object-fit: contain;
+}
+
+.photo-dialog button {
+  position: fixed;
+  z-index: 2;
+  top: max(10px, env(safe-area-inset-top));
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  color: #fff;
+  background: var(--rust);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  font-size: 1.6rem;
+}
+
+@media (min-width: 640px) {
+  .vehicle-header { padding-inline: max(32px, calc((100vw - 820px) / 2)); }
+  .paper-panel { padding: 32px; }
+  .social-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#211a14">
+  <meta name="description" content="BACC ON STREET DREAMS BOSD AWARD 車両紹介ページ">
+  <title>BOSD AWARD 車両紹介</title>
+  <link rel="stylesheet" href="vehicle.css?v=20260814-1">
+</head>
+<body>
+  <header class="vehicle-header">
+    <p class="kicker">BACC ON STREET DREAMS · BOSD AWARD</p>
+    <h1>SHOW<br><span>YOUR RIDE.</span></h1>
+    <p>投票用車両紹介ページ</p>
+  </header>
+
+  <main>
+    <section id="loading" class="paper-panel status-panel" aria-live="polite">
+      <p class="kicker ink">VEHICLE PROFILE</p>
+      <h2>車両情報を読み込んでいます…</h2>
+    </section>
+
+    <section id="error" class="paper-panel status-panel error-panel" hidden>
+      <p class="kicker ink">ACCESS ERROR</p>
+      <h2>車両情報を表示できませんでした。</h2>
+      <p id="error-message">QRコードをもう一度読み取ってください。</p>
+    </section>
+
+    <article id="vehicle-profile" hidden>
+      <section class="profile-heading paper-panel">
+        <div>
+          <small>ENTRY NUMBER</small>
+          <strong id="entry-number"></strong>
+        </div>
+        <div>
+          <small>CATEGORY</small>
+          <strong id="vehicle-type"></strong>
+        </div>
+        <p class="maker" id="maker"></p>
+        <h2 id="vehicle-name"></h2>
+        <p class="owner"><span>OWNER</span><b id="owner-name"></b></p>
+      </section>
+
+      <section class="photo-section" aria-label="車両写真">
+        <button class="photo main-photo" type="button" data-photo="main-photo" aria-label="メイン写真を大きく表示">
+          <img id="main-photo" alt="車両メイン写真">
+        </button>
+        <div id="sub-photo-grid" class="sub-photo-grid">
+          <button class="photo" type="button" data-photo="sub-photo-1" aria-label="追加写真1を大きく表示">
+            <img id="sub-photo-1" alt="車両追加写真1">
+          </button>
+          <button class="photo" type="button" data-photo="sub-photo-2" aria-label="追加写真2を大きく表示">
+            <img id="sub-photo-2" alt="車両追加写真2">
+          </button>
+        </div>
+      </section>
+
+      <section id="owner-comment-section" class="paper-panel story-panel" hidden>
+        <p class="section-number">01 / OWNER'S COMMENT</p>
+        <p id="owner-comment" class="multiline"></p>
+      </section>
+
+      <section id="custom-section" class="paper-panel story-panel" hidden>
+        <p class="section-number">02 / CUSTOM</p>
+        <p id="custom-content" class="multiline"></p>
+      </section>
+
+      <section id="appeal-section" class="paper-panel story-panel" hidden>
+        <p class="section-number">03 / APPEAL POINT</p>
+        <p id="appeal-point" class="multiline"></p>
+      </section>
+
+      <nav id="social-links" class="social-links" aria-label="参加者SNS" hidden></nav>
+
+      <p class="read-only-note">このページは閲覧専用です。車両情報の編集はできません。</p>
+    </article>
+  </main>
+
+  <dialog id="photo-dialog" class="photo-dialog">
+    <button id="close-photo" type="button" aria-label="画像を閉じる">×</button>
+    <img id="dialog-photo" alt="拡大した車両写真">
+  </dialog>
+
+  <script src="vehicle.js?v=20260814-1"></script>
+</body>
+</html>
