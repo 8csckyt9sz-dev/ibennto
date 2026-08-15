@@ -271,8 +271,31 @@ function initializeEntrySubmission() {
         );
       }
 
+      let entryChatSent = false;
+      try {
+        entryChatSent = await sendEntryCompletionMessage({
+          entryNumber: result.entryNumber,
+          name: payload.name
+        });
+      } catch (lineError) {
+        // 公式LINEへの送信失敗で、完了済みの申込を失敗扱いにしない。
+        console.warn(
+          'Entry completion chat message failed:',
+          safeErrorForLog(lineError, 'liff.sendMessages')
+        );
+      }
+
       entryNumber.textContent = result.entryNumber;
-      showLineDeliveryResult('entry-line-status', result);
+      showLineDeliveryResult(
+        'entry-line-status',
+        entryChatSent
+          ? {
+              ...result,
+              applicantMessageSent: true,
+              applicantMessageWarning: ''
+            }
+          : result
+      );
       form.hidden = true;
       clearFormDraft(form);
       success.hidden = false;
@@ -296,6 +319,32 @@ function initializeEntrySubmission() {
       setSubmitting(submitButton, false);
     }
   });
+}
+
+/**
+ * 保存済みのBOSD AWARD受付番号を、申込者本人のメッセージとして
+ * 公式LINEのトークへ送る。失敗しても申込保存結果には影響させない。
+ */
+async function sendEntryCompletionMessage({entryNumber, name}) {
+  if (
+    !window.liff ||
+    !liffSession.ready ||
+    typeof liff.sendMessages !== 'function'
+  ) {
+    return false;
+  }
+
+  await liff.sendMessages([{
+    type: 'text',
+    text: [
+      '【BOSD AWARDエントリー完了】',
+      '',
+      `受付番号：${entryNumber}`,
+      `申込者：${name || ''}`
+    ].join('\n')
+  }]);
+
+  return true;
 }
 
 function initializeSponsorSubmission() {
