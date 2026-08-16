@@ -9,6 +9,7 @@ const GAS_WEB_APP_URL =
 
 const ENTRY_LIFF_ID = '2010807562-2wvrDOlv';
 const SPONSOR_LIFF_ID = '2010807562-lnaRgdef';
+const OFFICIAL_LINE_ID = '@562kiewx';
 const TURNSTILE_SITE_KEY = '';
 
 const liffSession = {
@@ -217,8 +218,64 @@ function initializeEntrySubmission() {
   const success = document.querySelector('#success');
   const entryNumber = document.querySelector('#entry-number');
   const status = document.querySelector('#entry-form-status');
+  const lineRetryButton = document.querySelector('#entry-line-retry');
 
   if (!form || !success || !entryNumber || !status) return;
+
+  let acceptedEntry = readPendingEntryReceipt();
+
+  const showAcceptedEntry = receipt => {
+    acceptedEntry = receipt;
+    entryNumber.textContent = receipt.entryNumber;
+    form.hidden = true;
+    success.hidden = false;
+    if (lineRetryButton) lineRetryButton.hidden = receipt.lineSent === true;
+  };
+
+  const sendAcceptedEntryToLine = async () => {
+    if (!acceptedEntry) return false;
+    const sent = await sendEntryCompletionMessage(acceptedEntry);
+    acceptedEntry.lineSent = sent;
+    if (sent) {
+      clearPendingEntryReceipt();
+      showLineDeliveryResult('entry-line-status', {
+        applicantMessageSent: true
+      });
+      if (lineRetryButton) lineRetryButton.hidden = true;
+    }
+    return sent;
+  };
+
+  if (acceptedEntry) {
+    showAcceptedEntry(acceptedEntry);
+    showLineDeliveryResult('entry-line-status', {
+      applicantMessageSent: acceptedEntry.lineSent === true,
+      applicantMessageWarning: '受付は保存済みです。下のボタンから公式LINEへの送信だけを再実行してください。'
+    });
+  }
+
+  lineRetryButton?.addEventListener('click', async () => {
+    setSubmitting(lineRetryButton, true, '公式LINEへ送信中...');
+    try {
+      const sent = await sendAcceptedEntryToLine();
+      if (!sent) {
+        openOfficialLineEntryMessage(acceptedEntry);
+        showLineDeliveryResult('entry-line-status', {
+          applicantMessageSent: false,
+          applicantMessageWarning: '公式LINEが開いたら、入力済みの受付完了メッセージをそのまま送信してください。申込データは再登録されません。'
+        });
+      }
+    } catch (error) {
+      console.warn('Entry completion retry failed:', safeErrorForLog(error, 'liff.sendMessages.retry'));
+      openOfficialLineEntryMessage(acceptedEntry);
+      showLineDeliveryResult('entry-line-status', {
+        applicantMessageSent: false,
+        applicantMessageWarning: '公式LINEが開いたら、入力済みの受付完了メッセージをそのまま送信してください。申込データは再登録されません。'
+      });
+    } finally {
+      setSubmitting(lineRetryButton, false);
+    }
+  });
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -239,6 +296,7 @@ function initializeEntrySubmission() {
 
       const payload = {
         action: 'submitEntry',
+        requestId: getOrCreateEntryRequestId(),
         idToken,
         name: formData.get('name'),
         kana: formData.get('kana'),
@@ -272,11 +330,14 @@ function initializeEntrySubmission() {
       }
 
       let entryChatSent = false;
+      acceptedEntry = {
+        entryNumber: result.entryNumber,
+        name: payload.name,
+        lineSent: false
+      };
+      savePendingEntryReceipt(acceptedEntry);
       try {
-        entryChatSent = await sendEntryCompletionMessage({
-          entryNumber: result.entryNumber,
-          name: payload.name
-        });
+        entryChatSent = await sendAcceptedEntryToLine();
       } catch (lineError) {
         // 公式LINEへの送信失敗で、完了済みの申込を失敗扱いにしない。
         console.warn(
@@ -298,7 +359,9 @@ function initializeEntrySubmission() {
       );
       form.hidden = true;
       clearFormDraft(form);
+      clearEntryRequestId();
       success.hidden = false;
+      if (lineRetryButton) lineRetryButton.hidden = entryChatSent;
 
       window.scrollTo({
         top: 0,
@@ -321,6 +384,62 @@ function initializeEntrySubmission() {
   });
 }
 
+const ENTRY_REQUEST_ID_KEY = 'bosd-entry-request-id';
+const PENDING_ENTRY_RECEIPT_KEY = 'bosd-pending-entry-receipt';
+
+function getOrCreateEntryRequestId() {
+  let requestId = '';
+  try {
+    requestId = sessionStorage.getItem(ENTRY_REQUEST_ID_KEY) || '';
+    if (!requestId) {
+      requestId = typeof crypto?.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      sessionStorage.setItem(ENTRY_REQUEST_ID_KEY, requestId);
+    }
+  } catch (_) {
+    requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+  return requestId;
+}
+
+function clearEntryRequestId() {
+  try { sessionStorage.removeItem(ENTRY_REQUEST_ID_KEY); } catch (_) {}
+}
+
+function savePendingEntryReceipt(receipt) {
+  try { sessionStorage.setItem(PENDING_ENTRY_RECEIPT_KEY, JSON.stringify(receipt)); } catch (_) {}
+}
+
+function readPendingEntryReceipt() {
+  try {
+    const receipt = JSON.parse(sessionStorage.getItem(PENDING_ENTRY_RECEIPT_KEY) || 'null');
+    return receipt?.entryNumber ? receipt : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function clearPendingEntryReceipt() {
+  try { sessionStorage.removeItem(PENDING_ENTRY_RECEIPT_KEY); } catch (_) {}
+}
+
+function buildEntryCompletionText({entryNumber, name}) {
+  return [
+    '【BOSD AWARDエントリー完了】',
+    '',
+    `受付番号：${entryNumber}`,
+    `申込者：${name || ''}`
+  ].join('\n');
+}
+
+function openOfficialLineEntryMessage(receipt) {
+  if (!receipt?.entryNumber) return;
+  const lineId = encodeURIComponent(OFFICIAL_LINE_ID);
+  const message = encodeURIComponent(buildEntryCompletionText(receipt));
+  window.location.href = `https://line.me/R/oaMessage/${lineId}/?${message}`;
+}
+
 /**
  * 保存済みのBOSD AWARD受付番号を、申込者本人のメッセージとして
  * 公式LINEのトークへ送る。失敗しても申込保存結果には影響させない。
@@ -336,12 +455,7 @@ async function sendEntryCompletionMessage({entryNumber, name}) {
 
   await liff.sendMessages([{
     type: 'text',
-    text: [
-      '【BOSD AWARDエントリー完了】',
-      '',
-      `受付番号：${entryNumber}`,
-      `申込者：${name || ''}`
-    ].join('\n')
+    text: buildEntryCompletionText({entryNumber, name})
   }]);
 
   return true;
