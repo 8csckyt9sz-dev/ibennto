@@ -355,7 +355,11 @@ function initializeEntrySubmission() {
               applicantMessageSent: true,
               applicantMessageWarning: ''
             }
-          : result
+          : {
+              ...result,
+              applicantMessageSent: false,
+              applicantMessageWarning: '申込は保存済みです。公式LINEを開きます。LINEに入力された受付完了メッセージをそのまま送信してください。'
+            }
       );
       form.hidden = true;
       clearFormDraft(form);
@@ -367,6 +371,14 @@ function initializeEntrySubmission() {
         top: 0,
         behavior: 'smooth'
       });
+
+      if (!entryChatSent) {
+        // ホームページや外部ブラウザから開いた場合は、現在のチャットへ
+        // liff.sendMessages()を送れないため、公式LINEの入力済みトークへ移動する。
+        window.setTimeout(() => {
+          openOfficialLineEntryMessage(acceptedEntry);
+        }, 350);
+      }
     } catch (error) {
       console.error(
         'Entry submission failed:',
