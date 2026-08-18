@@ -220,6 +220,7 @@ function initializeEntrySubmission() {
   const entryNumber = document.querySelector('#entry-number');
   const status = document.querySelector('#entry-form-status');
   const lineRetryButton = document.querySelector('#entry-line-retry');
+  const successTitle = success?.querySelector('h2');
 
   if (!form || !success || !entryNumber || !status) return;
 
@@ -239,6 +240,7 @@ function initializeEntrySubmission() {
     acceptedEntry.lineSent = sent;
     if (sent) {
       clearPendingEntryReceipt();
+      if (successTitle) successTitle.textContent = 'BOSD AWARDエントリーを受け付けました';
       showLineDeliveryResult('entry-line-status', {
         applicantMessageSent: true
       });
@@ -249,6 +251,7 @@ function initializeEntrySubmission() {
 
   if (acceptedEntry) {
     showAcceptedEntry(acceptedEntry);
+    if (successTitle) successTitle.textContent = '公式LINEへの送信が必要です';
     showLineDeliveryResult('entry-line-status', {
       applicantMessageSent: acceptedEntry.lineSent === true,
       applicantMessageWarning: '受付は保存済みです。下のボタンから公式LINEへの送信だけを再実行してください。'
@@ -366,6 +369,11 @@ function initializeEntrySubmission() {
       clearFormDraft(form);
       clearEntryRequestId();
       success.hidden = false;
+      if (successTitle) {
+        successTitle.textContent = entryChatSent
+          ? 'BOSD AWARDエントリーを受け付けました'
+          : '申込内容を仮保存しました';
+      }
       if (lineRetryButton) lineRetryButton.hidden = entryChatSent;
 
       window.scrollTo({
@@ -641,6 +649,7 @@ function initializeVendorSubmission() {
   const vendorAmount = document.querySelector('#vendor-amount');
   const status = document.querySelector('#vendor-form-status');
   const lineRetryButton = document.querySelector('#vendor-line-retry');
+  const successTitle = success?.querySelector('h2');
   if (!form || !success || !vendorNumber || !vendorAmount || !status) return;
 
   let acceptedVendor = readPendingVendorReceipt();
@@ -660,6 +669,7 @@ function initializeVendorSubmission() {
     acceptedVendor.lineSent = sent;
     if (sent) {
       clearPendingVendorReceipt();
+      if (successTitle) successTitle.textContent = '出店申込みを受け付けました';
       showLineDeliveryResult('vendor-line-status', { applicantMessageSent: true });
       if (lineRetryButton) lineRetryButton.hidden = true;
     }
@@ -668,6 +678,7 @@ function initializeVendorSubmission() {
 
   if (acceptedVendor) {
     showAcceptedVendor(acceptedVendor);
+    if (successTitle) successTitle.textContent = '公式LINEへの送信が必要です';
     showLineDeliveryResult('vendor-line-status', {
       applicantMessageSent: acceptedVendor.lineSent === true,
       applicantMessageWarning: '出店申込は保存済みです。下のボタンから公式LINEへの送信だけを再実行してください。'
@@ -754,6 +765,11 @@ function initializeVendorSubmission() {
       form.hidden = true;
       clearFormDraft(form);
       success.hidden = false;
+      if (successTitle) {
+        successTitle.textContent = vendorChatSent
+          ? '出店申込みを受け付けました'
+          : '出店申込内容を仮保存しました';
+      }
       if (lineRetryButton) lineRetryButton.hidden = vendorChatSent;
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
