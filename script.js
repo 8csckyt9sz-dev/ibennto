@@ -11,6 +11,7 @@ const ENTRY_LIFF_ID = '2010807562-2wvrDOlv';
 const SPONSOR_LIFF_ID = '2010807562-lnaRgdef';
 const OFFICIAL_LINE_ID = '@562kiewx';
 const TURNSTILE_SITE_KEY = '';
+const PENDING_VENDOR_RECEIPT_KEY = 'bosd-pending-vendor-receipt';
 
 const liffSession = {
   pageType: '',
@@ -473,6 +474,56 @@ async function sendEntryCompletionMessage({entryNumber, name}) {
   return true;
 }
 
+function savePendingVendorReceipt(receipt) {
+  try { sessionStorage.setItem(PENDING_VENDOR_RECEIPT_KEY, JSON.stringify(receipt)); } catch (_) {}
+}
+
+function readPendingVendorReceipt() {
+  try {
+    const receipt = JSON.parse(sessionStorage.getItem(PENDING_VENDOR_RECEIPT_KEY) || 'null');
+    return receipt?.vendorNumber ? receipt : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function clearPendingVendorReceipt() {
+  try { sessionStorage.removeItem(PENDING_VENDOR_RECEIPT_KEY); } catch (_) {}
+}
+
+function buildVendorCompletionText({vendorNumber, companyName}) {
+  return [
+    '【BOSD出店申込完了】',
+    '',
+    `出店受付番号：${vendorNumber}`,
+    `店舗・会社名：${companyName || ''}`
+  ].join('\n');
+}
+
+function openOfficialLineVendorMessage(receipt) {
+  if (!receipt?.vendorNumber) return;
+  const lineId = encodeURIComponent(OFFICIAL_LINE_ID);
+  const message = encodeURIComponent(buildVendorCompletionText(receipt));
+  window.location.href = `https://line.me/R/oaMessage/${lineId}/?${message}`;
+}
+
+async function sendVendorCompletionMessage(receipt) {
+  if (
+    !receipt?.vendorNumber ||
+    !window.liff ||
+    !liffSession.ready ||
+    typeof liff.sendMessages !== 'function'
+  ) {
+    return false;
+  }
+
+  await liff.sendMessages([{
+    type: 'text',
+    text: buildVendorCompletionText(receipt)
+  }]);
+  return true;
+}
+
 function initializeSponsorSubmission() {
   const form = document.querySelector('#sponsor-form');
   const success = document.querySelector('#sponsor-success');
@@ -589,7 +640,58 @@ function initializeVendorSubmission() {
   const vendorNumber = document.querySelector('#vendor-number');
   const vendorAmount = document.querySelector('#vendor-amount');
   const status = document.querySelector('#vendor-form-status');
+  const lineRetryButton = document.querySelector('#vendor-line-retry');
   if (!form || !success || !vendorNumber || !vendorAmount || !status) return;
+
+  let acceptedVendor = readPendingVendorReceipt();
+
+  const showAcceptedVendor = receipt => {
+    acceptedVendor = receipt;
+    vendorNumber.textContent = receipt.vendorNumber;
+    vendorAmount.textContent = `${Number(receipt.amount || 0).toLocaleString('ja-JP')}円`;
+    form.hidden = true;
+    success.hidden = false;
+    if (lineRetryButton) lineRetryButton.hidden = receipt.lineSent === true;
+  };
+
+  const sendAcceptedVendorToLine = async () => {
+    if (!acceptedVendor) return false;
+    const sent = await sendVendorCompletionMessage(acceptedVendor);
+    acceptedVendor.lineSent = sent;
+    if (sent) {
+      clearPendingVendorReceipt();
+      showLineDeliveryResult('vendor-line-status', { applicantMessageSent: true });
+      if (lineRetryButton) lineRetryButton.hidden = true;
+    }
+    return sent;
+  };
+
+  if (acceptedVendor) {
+    showAcceptedVendor(acceptedVendor);
+    showLineDeliveryResult('vendor-line-status', {
+      applicantMessageSent: acceptedVendor.lineSent === true,
+      applicantMessageWarning: '出店申込は保存済みです。下のボタンから公式LINEへの送信だけを再実行してください。'
+    });
+  }
+
+  lineRetryButton?.addEventListener('click', async () => {
+    setSubmitting(lineRetryButton, true, '公式LINEへ送信中...');
+    try {
+      const sent = await sendAcceptedVendorToLine();
+      if (!sent) {
+        openOfficialLineVendorMessage(acceptedVendor);
+        showLineDeliveryResult('vendor-line-status', {
+          applicantMessageSent: false,
+          applicantMessageWarning: '公式LINEが開いたら、入力済みの出店受付完了メッセージをそのまま送信してください。申込データは再登録されません。'
+        });
+      }
+    } catch (error) {
+      console.warn('Vendor completion retry failed:', safeErrorForLog(error, 'liff.sendMessages.retry'));
+      openOfficialLineVendorMessage(acceptedVendor);
+    } finally {
+      setSubmitting(lineRetryButton, false);
+    }
+  });
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -621,13 +723,43 @@ function initializeVendorSubmission() {
       if (!(result.ok ?? result.success) || !result.vendorNumber) {
         throw new Error(result.message || '出店受付番号を取得できませんでした。');
       }
+
+      acceptedVendor = {
+        vendorNumber: result.vendorNumber,
+        companyName: payload.companyName,
+        amount: result.amount,
+        lineSent: false
+      };
+      savePendingVendorReceipt(acceptedVendor);
+
+      let vendorChatSent = false;
+      try {
+        vendorChatSent = await sendAcceptedVendorToLine();
+      } catch (lineError) {
+        console.warn('Vendor completion chat message failed:', safeErrorForLog(lineError, 'liff.sendMessages'));
+      }
+
       vendorNumber.textContent = result.vendorNumber;
       vendorAmount.textContent = `${Number(result.amount).toLocaleString('ja-JP')}円`;
-      showLineDeliveryResult('vendor-line-status', result);
+      showLineDeliveryResult(
+        'vendor-line-status',
+        vendorChatSent
+          ? { ...result, applicantMessageSent: true, applicantMessageWarning: '' }
+          : {
+              ...result,
+              applicantMessageSent: false,
+              applicantMessageWarning: '出店申込は保存済みです。公式LINEを開きます。LINEに入力された出店受付完了メッセージをそのまま送信してください。'
+            }
+      );
       form.hidden = true;
       clearFormDraft(form);
       success.hidden = false;
+      if (lineRetryButton) lineRetryButton.hidden = vendorChatSent;
       window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (!vendorChatSent) {
+        window.setTimeout(() => openOfficialLineVendorMessage(acceptedVendor), 350);
+      }
     } catch (error) {
       console.error('Vendor submission failed:', safeErrorForLog(error));
       showStatus(status, getPublicErrorMessage(error), 'error');
