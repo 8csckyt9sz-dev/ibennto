@@ -43,6 +43,7 @@ function renderVehicle(vehicle) {
 
   document.querySelector('#loading').hidden = true;
   document.querySelector('#vehicle-profile').hidden = false;
+  document.querySelector('#vote-action-bar').hidden = false;
 }
 
 function setPhoto(id, url, required) {
