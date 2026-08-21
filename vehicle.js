@@ -2,6 +2,9 @@ const GAS_WEB_APP_URL =
   'https://script.google.com/macros/s/AKfycbyYlqLj4cq_bLbaEdl_8iqjTjLyThdC5sLLPqufaW-zd3BD7ay5oArSSOEZhd6hs0OL7g/exec';
 
 document.addEventListener('DOMContentLoaded', initializeVehiclePage);
+document.querySelector('#vote-action-button').addEventListener('click', () => {
+  alert('現在は投票受付の準備中です。受付開始までお待ちください。');
+});
 
 async function initializeVehiclePage() {
   const token = new URLSearchParams(location.search).get('token') || '';
