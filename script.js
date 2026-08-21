@@ -12,6 +12,8 @@ const SPONSOR_LIFF_ID = '2010807562-lnaRgdef';
 const OFFICIAL_LINE_ID = '@562kiewx';
 const TURNSTILE_SITE_KEY = '';
 const PENDING_VENDOR_RECEIPT_KEY = 'bosd-pending-vendor-receipt';
+// 公式LINEのPush送信を止めている間は、本人に入力済みメッセージの送信を促す。
+const REQUIRE_MANUAL_ENTRY_COMPLETION = true;
 
 const liffSession = {
   pageType: '',
@@ -466,6 +468,7 @@ function openOfficialLineEntryMessage(receipt) {
  * 公式LINEのトークへ送る。失敗しても申込保存結果には影響させない。
  */
 async function sendEntryCompletionMessage({entryNumber, name}) {
+  if (REQUIRE_MANUAL_ENTRY_COMPLETION) return false;
   if (
     !window.liff ||
     !liffSession.ready ||
