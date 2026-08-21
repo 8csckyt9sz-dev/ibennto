@@ -132,7 +132,7 @@ function normalizeDriveImageUrl(url) {
   const idMatch = text.match(/[?&]id=([A-Za-z0-9_-]+)/) ||
     text.match(/\/file\/d\/([A-Za-z0-9_-]+)/);
   return idMatch
-    ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(idMatch[1])}&sz=w1600`
+    ? `https://lh3.googleusercontent.com/d/${encodeURIComponent(idMatch[1])}=w1600`
     : text;
 }
 
