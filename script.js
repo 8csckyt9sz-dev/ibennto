@@ -384,11 +384,8 @@ function initializeEntrySubmission() {
       });
 
       if (!entryChatSent) {
-        // ホームページや外部ブラウザから開いた場合は、現在のチャットへ
-        // liff.sendMessages()を送れないため、公式LINEの入力済みトークへ移動する。
-        window.setTimeout(() => {
-          openOfficialLineEntryMessage(acceptedEntry);
-        }, 350);
+        // 受付番号を取得できた時点で、待機を挟まず公式LINEの入力済みトークへ移動する。
+        openOfficialLineEntryMessage(acceptedEntry);
       }
     } catch (error) {
       console.error(

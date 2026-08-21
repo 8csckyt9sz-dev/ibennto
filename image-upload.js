@@ -1,6 +1,7 @@
 (() => {
-  const MAX_IMAGE_SIDE = 1200;
-  const MAX_DATA_URL_LENGTH = 900000;
+  // スマホ表示に十分な解像度を保ちつつ、申込送信とDrive保存を高速化する。
+  const MAX_IMAGE_SIDE = 960;
+  const MAX_DATA_URL_LENGTH = 520000;
 
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('#entry-form');
@@ -86,7 +87,7 @@
 
     context.drawImage(source, 0, 0, width, height);
 
-    for (const quality of [0.72, 0.62, 0.52, 0.42]) {
+    for (const quality of [0.68, 0.58, 0.48, 0.4]) {
       const dataUrl = canvas.toDataURL('image/jpeg', quality);
 
       if (dataUrl.length <= MAX_DATA_URL_LENGTH) {
