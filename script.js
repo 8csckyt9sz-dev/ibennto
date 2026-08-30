@@ -14,8 +14,8 @@ const TURNSTILE_SITE_KEY = '';
 const PENDING_VENDOR_RECEIPT_KEY = 'bosd-pending-vendor-receipt';
 // 公式LINEのPush送信を止めている間は、申込者本人に
 // 入力済みの完了メッセージを送信してもらう。
-const REQUIRE_MANUAL_ENTRY_COMPLETION = true;
-const REQUIRE_MANUAL_VENDOR_COMPLETION = true;
+// 9月に自動送信へ戻すときは、ここ1か所だけ false にする。
+const REQUIRE_MANUAL_LINE_COMPLETION = true;
 
 const liffSession = {
   pageType: '',
@@ -467,7 +467,7 @@ function openOfficialLineEntryMessage(receipt) {
  * 公式LINEのトークへ送る。失敗しても申込保存結果には影響させない。
  */
 async function sendEntryCompletionMessage({entryNumber, name}) {
-  if (REQUIRE_MANUAL_ENTRY_COMPLETION) return false;
+  if (REQUIRE_MANUAL_LINE_COMPLETION) return false;
   if (
     !window.liff ||
     !liffSession.ready ||
@@ -518,7 +518,7 @@ function openOfficialLineVendorMessage(receipt) {
 }
 
 async function sendVendorCompletionMessage(receipt) {
-  if (REQUIRE_MANUAL_VENDOR_COMPLETION) return false;
+  if (REQUIRE_MANUAL_LINE_COMPLETION) return false;
   if (
     !receipt?.vendorNumber ||
     !window.liff ||
