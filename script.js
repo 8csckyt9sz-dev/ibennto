@@ -789,7 +789,7 @@ function initializeVendorSubmission() {
 
 async function initializePageLiff() {
   const requestedMode = getRequestedMode();
-  const pageType =
+  let pageType =
     document.body.classList.contains('entry-page')
       ? 'entry'
       : document.body.classList.contains('sponsor-page')
@@ -841,6 +841,17 @@ async function initializePageLiff() {
       liffId,
       withLoginOnExternalBrowser: true
     });
+
+    // LIFF URLに付けた追加情報は、liff.init()中のリダイレクト後に
+    // liff.stateから通常のクエリへ復元される。端末差で出店モードが
+    // 協賛モードへ戻らないよう、初期化完了後に必ず再判定する。
+    if (document.body.classList.contains('sponsor-page')) {
+      pageType = getRequestedMode() === 'vendor' ? 'vendor' : 'sponsor';
+      liffSession.pageType = pageType;
+      document.querySelector('#sponsor-liff-panel')?.setAttribute('hidden', '');
+      document.querySelector('#vendor-liff-panel')?.setAttribute('hidden', '');
+      document.querySelector(`#${pageType}-liff-panel`)?.removeAttribute('hidden');
+    }
 
     if (!liff.isLoggedIn()) {
       liff.login({
