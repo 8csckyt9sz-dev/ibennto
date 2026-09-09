@@ -846,7 +846,9 @@ async function initializePageLiff() {
     // liff.stateから通常のクエリへ復元される。端末差で出店モードが
     // 協賛モードへ戻らないよう、初期化完了後に必ず再判定する。
     if (document.body.classList.contains('sponsor-page')) {
-      pageType = getRequestedMode() === 'vendor' ? 'vendor' : 'sponsor';
+      pageType = getRequestedMode() === 'vendor' || hasPendingVendorLiffMode()
+        ? 'vendor'
+        : 'sponsor';
       liffSession.pageType = pageType;
       document.querySelector('#sponsor-liff-panel')?.setAttribute('hidden', '');
       document.querySelector('#vendor-liff-panel')?.setAttribute('hidden', '');
@@ -876,6 +878,7 @@ async function initializePageLiff() {
     liffSession.ready = true;
 
     showAuthenticatedForm(pageType);
+    if (pageType === 'vendor') clearPendingVendorLiffMode();
   } catch (error) {
     if (
       error?.code ===
@@ -1348,13 +1351,31 @@ function initializeTurnstile() {
 function getRequestedMode() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('mode') === 'vendor') return 'vendor';
+  if (window.location.hash === '#vendor') return 'vendor';
   const state = params.get('liff.state');
-  if (!state) return '';
-  try {
-    const decoded = decodeURIComponent(state);
-    const stateQuery = decoded.includes('?') ? decoded.split('?')[1] : decoded.replace(/^\?/, '');
-    return new URLSearchParams(stateQuery).get('mode') || '';
-  } catch (_) {
-    return '';
+  if (state) {
+    try {
+      const decoded = decodeURIComponent(state);
+      if (decoded.includes('#vendor')) return 'vendor';
+      const stateQuery = decoded.includes('?') ? decoded.split('?')[1].split('#')[0] : decoded.replace(/^\?/, '');
+      if (new URLSearchParams(stateQuery).get('mode') === 'vendor') return 'vendor';
+    } catch (_) {}
   }
+  return hasPendingVendorLiffMode() ? 'vendor' : '';
+}
+
+function hasPendingVendorLiffMode() {
+  try {
+    if (Number(sessionStorage.getItem('bosd-pending-liff-mode')) > Date.now()) return true;
+  } catch (_) {}
+  try {
+    if (Number(localStorage.getItem('bosd-pending-liff-mode')) > Date.now()) return true;
+  } catch (_) {}
+  return document.cookie.split(';').some(value => value.trim() === 'bosd_pending_liff_mode=vendor');
+}
+
+function clearPendingVendorLiffMode() {
+  try { sessionStorage.removeItem('bosd-pending-liff-mode'); } catch (_) {}
+  try { localStorage.removeItem('bosd-pending-liff-mode'); } catch (_) {}
+  document.cookie = 'bosd_pending_liff_mode=; Max-Age=0; Path=/; SameSite=Lax; Secure';
 }

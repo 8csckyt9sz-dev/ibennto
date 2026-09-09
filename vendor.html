@@ -23,9 +23,17 @@
       <p>出店内容、車両情報、火気・発電機の使用、スタッフ人数、前日搬入の有無をご登録ください。</p>
       <p>電源・水道の用意はありません。必要な場合は、申込フォームの備考欄に内容を書いてご相談ください。</p>
       <p class="parking-notice compact"><strong>駐車場料金について</strong>ネスタリゾート神戸の駐車場代として、2時間以上の駐車で1,500円が出店料とは別途必要です。</p>
-      <a class="button primary wide" href="https://liff.line.me/2010807562-lnaRgdef/?mode=vendor">LINEで出店を申し込む</a>
+      <a id="vendor-liff-link" class="button primary wide" href="https://liff.line.me/2010807562-lnaRgdef/?mode=vendor#vendor">LINEで出店を申し込む</a>
     </section>
   </main>
   <footer><strong>BACC ON STREET DREAMS</strong><small>VENDOR SPONSOR</small><a class="footer-policy-link" href="privacy.html">個人情報の取扱いについて</a></footer>
+  <script>
+    document.getElementById('vendor-liff-link')?.addEventListener('click', () => {
+      const expiresAt = String(Date.now() + 1800000);
+      try { sessionStorage.setItem('bosd-pending-liff-mode', expiresAt); } catch (_) {}
+      try { localStorage.setItem('bosd-pending-liff-mode', expiresAt); } catch (_) {}
+      document.cookie = 'bosd_pending_liff_mode=vendor; Max-Age=1800; Path=/; SameSite=Lax; Secure';
+    });
+  </script>
 </body>
 </html>
