@@ -54,7 +54,6 @@ function populate(participant) {
   setValue('appealPoint', participant.appealPoint);
   setValue('instagramUrl', participant.instagramUrl);
   setValue('otherSnsUrl', participant.otherSnsUrl);
-  setValue('publicStatus', participant.publicStatus || '非公開');
   setPreview('main-preview', participant.mainPhotoUrl);
   setPreview('sub-preview-1', participant.subPhoto1Url);
   setPreview('sub-preview-2', participant.subPhoto2Url);
@@ -121,8 +120,7 @@ async function saveParticipant(event) {
       customContent: data.get('customContent'),
       appealPoint: data.get('appealPoint'),
       instagramUrl: data.get('instagramUrl'),
-      otherSnsUrl: data.get('otherSnsUrl'),
-      publicStatus: data.get('publicStatus')
+      otherSnsUrl: data.get('otherSnsUrl')
     });
     if (!result.ok) throw new Error(result.message);
     state.images = { mainPhoto: '', subPhoto1: '', subPhoto2: '' };
